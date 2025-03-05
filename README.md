@@ -1,3 +1,5 @@
+####EARLY EARLY ALPHA - I DO NOT recommend anyone but developers use this - yet... ###
+
 # Network Chronicles: The Vanishing Admin
 
 A gamified self-discovering documentation system that transforms traditional network documentation into an immersive mystery adventure.
