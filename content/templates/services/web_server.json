@@ -1,0 +1,56 @@
+{
+  "service_type": "web_server",
+  "display_name": "Web Server",
+  "related_services": ["http", "https", "nginx", "apache"],
+  "discovery": {
+    "xp_reward": 25,
+    "notification": "You've discovered a web server running on the network! This might contain important content left by The Architect."
+  },
+  "narrative": {
+    "journal_entry": {
+      "title": "Web Server Analysis",
+      "content": "I've discovered a web server running on the network. This could be serving important content or applications set up by The Architect. I should investigate what's being hosted and look for any unusual configurations or hidden content. Web servers often contain configuration files that might reveal other connected services or security settings."
+    },
+    "story_hooks": [
+      "The web server might be hosting documentation left by The Architect",
+      "There could be hidden directories or access-controlled areas containing secrets",
+      "Log files might reveal who accessed sensitive information",
+      "Configuration files could contain credentials for other services"
+    ]
+  },
+  "challenges": [
+    {
+      "id": "web_server_exploration",
+      "title": "Web Server Exploration",
+      "description": "Investigate the content being served by the web server to find clues about The Architect's work.",
+      "tasks": [
+        "Identify what web application is running",
+        "Check for hidden directories or files",
+        "Analyze configuration files for sensitive information",
+        "Look for unusual access patterns in the logs"
+      ],
+      "hints": [
+        "Try accessing the web server in a browser with the server's IP address",
+        "Common configuration files are in /etc/nginx/ or /etc/apache2/",
+        "Web content is often stored in /var/www/"
+      ],
+      "xp_reward": 75
+    }
+  ],
+  "documentation": {
+    "service_details": "Web servers are the foundation of most internet applications, serving content and often connecting to databases or other backend services.",
+    "security_considerations": [
+      "Ensure directory listings are disabled",
+      "Check for outdated software or plugins",
+      "Verify that sensitive information isn't exposed in public directories",
+      "Look for unusual modules or configurations"
+    ],
+    "related_commands": [
+      "curl localhost - Access web content from the command line",
+      "ps aux | grep nginx - Check if nginx is running",
+      "ps aux | grep apache - Check if apache is running",
+      "ls -la /var/www/ - List web content directories",
+      "grep -r \"password\" /etc/nginx/ - Search for passwords in config files"
+    ]
+  }
+}

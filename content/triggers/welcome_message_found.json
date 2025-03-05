@@ -1,0 +1,5 @@
+{
+  "pattern": ".*cat.*\\/home\\/player\\/\\.local\\/share\\/network-chronicles\\/message\\.txt.*|.*less.*\\/home\\/player\\/\\.local\\/share\\/network-chronicles\\/message\\.txt.*",
+  "event": "welcome_message_found",
+  "one_time": true
+}

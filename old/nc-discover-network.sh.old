@@ -1,0 +1,100 @@
+#!/bin/bash
+# Network discovery helper script for Network Chronicles
+# This script can be run directly to add network discoveries
+
+# Source configuration
+GAME_ROOT="/opt/network-chronicles"
+PLAYER_ID=$(whoami)
+PLAYER_DIR="${GAME_ROOT}/data/players/${PLAYER_ID}"
+
+# Colors for output
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+RESET='\033[0m'
+
+# Create directories if needed
+mkdir -p "${PLAYER_DIR}" 2>/dev/null
+chmod 777 "${PLAYER_DIR}" 2>/dev/null
+
+# Make sure profile exists
+if [ ! -f "${PLAYER_DIR}/profile.json" ]; then
+  echo "Player profile not found. Please run 'nc-status' first."
+  exit 1
+fi
+
+# Function to add discovery
+add_discovery() {
+  local discovery="$1"
+  local profile="${PLAYER_DIR}/profile.json"
+  
+  # Check if profile exists
+  if [ ! -f "$profile" ]; then
+    echo "Error: Profile not found at $profile"
+    return 1
+  fi
+  
+  # Check if discovery already exists
+  if grep -q "\"$discovery\"" "$profile" 2>/dev/null; then
+    echo "You already have the $discovery discovery."
+    return 0
+  fi
+  
+  # Add the discovery
+  local tmp=$(mktemp)
+  jq ".discoveries += [\"$discovery\"] | .xp += 25" "$profile" > "$tmp" 2>/dev/null
+  
+  # Check if jq succeeded
+  if [ $? -eq 0 ] && [ -s "$tmp" ]; then
+    cat "$tmp" > "$profile"
+    chmod 666 "$profile"
+    echo -e "${GREEN}[DISCOVERY]${RESET} You've discovered: $discovery! (+25 XP)"
+    rm -f "$tmp"
+    return 0
+  else
+    echo "Error: Failed to add discovery."
+    rm -f "$tmp"
+    return 1
+  fi
+}
+
+# Display usage if no arguments
+if [ $# -eq 0 ]; then
+  echo "Network Chronicles - Network Discovery Helper"
+  echo "Usage: $(basename $0) [discovery_id]"
+  echo ""
+  echo "Available discoveries:"
+  echo "  network_gateway  - Discover the network gateway"
+  echo "  local_network    - Discover local network configuration"
+  echo ""
+  echo "Example: $(basename $0) network_gateway"
+  exit 0
+fi
+
+# Process arguments
+for discovery in "$@"; do
+  case "$discovery" in
+    network_gateway)
+      echo "Discovering network gateway..."
+      add_discovery "network_gateway"
+      ;;
+    local_network)
+      echo "Discovering local network..."
+      add_discovery "local_network"
+      ;;
+    all)
+      echo "Discovering all network components..."
+      add_discovery "network_gateway"
+      add_discovery "local_network"
+      ;;
+    *)
+      echo "Unknown discovery: $discovery"
+      ;;
+  esac
+done
+
+# Update status
+if [ -x "${GAME_ROOT}/bin/network-chronicles-engine.sh" ]; then
+  "${GAME_ROOT}/bin/network-chronicles-engine.sh" status "$PLAYER_ID"
+fi
+
+exit 0

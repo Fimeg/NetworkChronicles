@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  network-chronicles:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: network-chronicles
+    volumes:
+      # Mount bin directory directly instead of using a volume
+      - ./bin:/opt/network-chronicles/bin
+      - ./content:/opt/network-chronicles/content:ro
+      - ./src:/opt/network-chronicles/src:ro
+      - ./config:/opt/network-chronicles/config:ro
+      - ./docs:/opt/network-chronicles/docs:ro
+      - network-chronicles-data:/opt/network-chronicles/data
+      - network-chronicles-logs:/opt/network-chronicles/logs
+    ports:
+      - "3000:3000"  # API and Web UI
+      - "2222:22"    # SSH (if enabled)
+    environment:
+      - NODE_ENV=development
+      - API_ENABLED=true
+      - WEB_UI_ENABLED=true
+      - MULTIPLAYER_ENABLED=false
+      - LOG_LEVEL=info
+      - JWT_SECRET=your-secret-key-change-in-production
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    # Disable SELinux to prevent permission issues with files
+    security_opt:
+      - label=disable
+    networks:
+      - network-chronicles-net
+
+  # Optional database service for more advanced features
+  # Uncomment to enable
+  # mongodb:
+  #   image: mongo:5.0
+  #   container_name: network-chronicles-db
+  #   volumes:
+  #     - mongodb-data:/data/db
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=admin
+  #     - MONGO_INITDB_ROOT_PASSWORD=password
+  #   ports:
+  #     - "27017:27017"
+  #   networks:
+  #     - network-chronicles-net
+  #   restart: unless-stopped
+
+  # Optional Redis service for caching and pub/sub
+  # Uncomment to enable
+  # redis:
+  #   image: redis:6.2-alpine
+  #   container_name: network-chronicles-redis
+  #   volumes:
+  #     - redis-data:/data
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - network-chronicles-net
+  #   restart: unless-stopped
+
+volumes:
+  network-chronicles-bin:
+    name: network-chronicles-bin
+  network-chronicles-data:
+    name: network-chronicles-data
+  network-chronicles-logs:
+    name: network-chronicles-logs
+  # mongodb-data:
+  #   name: network-chronicles-mongodb-data
+  # redis-data:
+  #   name: network-chronicles-redis-data
+
+networks:
+  network-chronicles-net:
+    name: network-chronicles-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

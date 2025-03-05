@@ -1,0 +1,44 @@
+# Network Chronicles .gitignore
+
+# Player data and logs
+/data/players/
+/logs/
+
+# Environment-specific configurations
+/config/*.local.json
+.env
+
+# Node.js dependencies
+/node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build artifacts
+/dist/
+/build/
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Docker volumes
+/docker-volumes/
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+tmp/
+temp/
+
+# Sensitive information
+*.pem
+*.key
+*.crt
+*.p12

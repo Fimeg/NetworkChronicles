@@ -1,0 +1,9 @@
+{
+  "id": "discover_services",
+  "name": "Discover Network Services",
+  "description": "Identify what services are running on the network and document them",
+  "tier": 2,
+  "xp": 150,
+  "required_discoveries": ["network_gateway", "local_network"],
+  "next_quest": "investigate_unusual_traffic"
+}

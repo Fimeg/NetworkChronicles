@@ -1,0 +1,59 @@
+{
+  "service_type": "database",
+  "display_name": "Database Service",
+  "related_services": ["mysql", "postgresql", "mongodb", "redis"],
+  "discovery": {
+    "xp_reward": 30,
+    "notification": "You've discovered a database service running on the network! This likely contains valuable data managed by The Architect."
+  },
+  "narrative": {
+    "journal_entry": {
+      "title": "Database Discovery",
+      "content": "I've identified a database service running on the network. This is an important discovery as databases typically store structured information that could reveal critical details about The Architect's work. The database might contain logs, configuration data, or even direct notes about what they were investigating before disappearing. I need to find a way to access and explore this database safely."
+    },
+    "story_hooks": [
+      "The database could contain records of The Architect's investigation",
+      "Login credentials might be stored in configuration files",
+      "Access logs could show who was accessing sensitive information",
+      "Database structure might reveal the purpose of The Architect's work",
+      "There could be automated scripts or triggers that run at specific times"
+    ]
+  },
+  "challenges": [
+    {
+      "id": "database_analysis",
+      "title": "Database Analysis",
+      "description": "Access and analyze the database to uncover critical information about The Architect's work.",
+      "tasks": [
+        "Identify the database type and version",
+        "Locate database credentials in configuration files",
+        "Connect to the database and list available tables/collections",
+        "Extract and analyze data relevant to The Architect's disappearance"
+      ],
+      "hints": [
+        "Look for configuration files in /etc/ directories or application directories",
+        "Common database tools include mysql, psql, mongo, and redis-cli",
+        "Web applications often store database credentials in their config files",
+        "Check for unexpected database activity in logs"
+      ],
+      "xp_reward": 100
+    }
+  ],
+  "documentation": {
+    "service_details": "Databases store structured information that applications can query and modify. They are critical components in most IT infrastructure and often contain valuable insights about system operations.",
+    "security_considerations": [
+      "Ensure databases are not exposed to the public internet",
+      "Check for default or weak credentials",
+      "Verify appropriate access controls are in place",
+      "Look for sensitive data that might be stored unencrypted"
+    ],
+    "related_commands": [
+      "mysql -u root -p - Connect to MySQL database",
+      "psql -U postgres - Connect to PostgreSQL database",
+      "mongo - Connect to MongoDB",
+      "redis-cli - Connect to Redis cache",
+      "netstat -pln | grep 3306 - Check for MySQL connections",
+      "find / -name \"*.conf\" | grep -i sql - Find database configuration files"
+    ]
+  }
+}

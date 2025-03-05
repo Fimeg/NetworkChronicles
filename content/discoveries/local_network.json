@@ -1,0 +1,9 @@
+{
+  "id": "local_network",
+  "name": "Local Network Configuration",
+  "description": "The configuration of the local network segment",
+  "tier": 1,
+  "xp": 25,
+  "command": ".*ip addr.*|.*ifconfig.*|.*ipconfig.*|.*ip a.*",
+  "content": "You've discovered the local network configuration, including IP addresses, subnet masks, and interface information. This information is essential for understanding the network topology."
+}

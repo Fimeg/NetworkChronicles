@@ -1,0 +1,9 @@
+{
+  "id": "monitoring_service",
+  "name": "Monitoring Service",
+  "description": "A network monitoring service running on port 8080",
+  "tier": 2,
+  "xp": 75,
+  "command": ".*curl.*192\\.168\\.1\\.42:8080.*|.*wget.*192\\.168\\.1\\.42:8080.*|.*firefox.*192\\.168\\.1\\.42:8080.*|.*chrome.*192\\.168\\.1\\.42:8080.*",
+  "content": "You've discovered a monitoring service running on 192.168.1.42:8080. This service appears to be collecting metrics and logs from various systems on the network. It might contain valuable information about the network's status and history."
+}

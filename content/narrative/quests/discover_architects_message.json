@@ -1,0 +1,14 @@
+{
+  "id": "discover_architects_message",
+  "name": "Discover The Architect's Final Message",
+  "description": "Find the hidden message system The Architect used to document their investigation.",
+  "tier": 1,
+  "xp": 200,
+  "required_discoveries": ["breach_timeline"],
+  "next_quest": "begin_tier2_journey",
+  "rewards": [
+    "architect_notes",
+    "tier1_completion_badge",
+    "tier2_access"
+  ]
+}

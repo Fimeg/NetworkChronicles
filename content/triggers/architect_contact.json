@@ -1,0 +1,9 @@
+{
+  "pattern": ".*nc-journal.*|.*nc-status.*",
+  "event": "architect_contact",
+  "one_time": true,
+  "requirements": {
+    "discoveries": ["welcome_message", "network_gateway", "local_network"],
+    "tier_minimum": 2
+  }
+}

@@ -1,0 +1,46 @@
+#!/bin/bash
+# Script to directly add network discoveries
+# This is a temporary workaround until command detection is fixed
+
+PLAYER_ID=$(whoami)
+GAME_ROOT="/opt/network-chronicles"
+PLAYER_DIR="${GAME_ROOT}/data/players/${PLAYER_ID}"
+PROFILE="${PLAYER_DIR}/profile.json"
+
+# Make sure needed directories exist
+mkdir -p "${PLAYER_DIR}" 2>/dev/null
+chmod 777 "${PLAYER_DIR}" 2>/dev/null
+
+# Add both discoveries and update XP
+if [ -f "$PROFILE" ]; then
+  # Create temporary file
+  TMP=$(mktemp)
+  
+  # Check if discovery exists first to avoid duplicates
+  if ! grep -q '"network_gateway"' "$PROFILE" 2>/dev/null; then
+    jq '.discoveries += ["network_gateway"] | .xp += 25' "$PROFILE" > "$TMP" && mv "$TMP" "$PROFILE"
+    chmod 666 "$PROFILE"
+    echo "Discovery added: network_gateway (+25 XP)"
+  else
+    echo "You've already discovered the network gateway."
+  fi
+  
+  # Check for local network discovery
+  if ! grep -q '"local_network"' "$PROFILE" 2>/dev/null; then
+    TMP=$(mktemp)
+    jq '.discoveries += ["local_network"] | .xp += 25' "$PROFILE" > "$TMP" && mv "$TMP" "$PROFILE"
+    chmod 666 "$PROFILE"
+    echo "Discovery added: local_network (+25 XP)"
+  else
+    echo "You've already discovered the local network."
+  fi
+  
+  # Fix permissions
+  "${GAME_ROOT}/bin/network-chronicles-engine.sh" fix-permissions "$PLAYER_ID" >/dev/null 2>&1
+  
+  # Report status
+  "${GAME_ROOT}/bin/network-chronicles-engine.sh" status "$PLAYER_ID"
+else
+  echo "Error: Player profile not found at $PROFILE"
+  exit 1
+fi

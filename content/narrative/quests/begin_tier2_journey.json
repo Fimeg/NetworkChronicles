@@ -1,0 +1,13 @@
+{
+  "id": "begin_tier2_journey",
+  "name": "Begin Tier 2: Network Cartography",
+  "description": "With Tier 1 complete, begin mapping the broader network infrastructure as The Architect instructed.",
+  "tier": 2,
+  "xp": 50,
+  "required_discoveries": ["architects_final_message"],
+  "next_quest": "discover_network_segments",
+  "rewards": [
+    "advanced_mapping_tools",
+    "network_scanner_access"
+  ]
+}

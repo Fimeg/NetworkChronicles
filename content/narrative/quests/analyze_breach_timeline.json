@@ -1,0 +1,13 @@
+{
+  "id": "analyze_breach_timeline",
+  "name": "Analyze Breach Timeline",
+  "description": "After securing the vulnerable service, develop a timeline of events to understand what happened to The Architect.",
+  "tier": 1,
+  "xp": 150,
+  "required_discoveries": ["unusual_traffic", "secured_service"],
+  "next_quest": "discover_architects_message",
+  "rewards": [
+    "timeline_analysis_tool",
+    "security_badge_tier1_advanced"
+  ]
+}

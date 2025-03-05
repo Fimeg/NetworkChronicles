@@ -1,0 +1,58 @@
+{
+  "service_type": "unknown",
+  "display_name": "Unidentified Service",
+  "discovery": {
+    "xp_reward": 20,
+    "notification": "You've discovered an unidentified service on port {PORT}! This could be a custom service set up by The Architect or something suspicious."
+  },
+  "narrative": {
+    "journal_entry": {
+      "title": "Mysterious Service Discovery",
+      "content": "I've discovered an unidentified service running on port {PORT}. This isn't a standard service that I recognize, which makes it particularly interesting. It could be a custom application that The Architect was developing or using. Alternatively, it might be something suspicious that shouldn't be on the network. I need to investigate this service carefully to determine its purpose and whether it's related to The Architect's disappearance."
+    },
+    "story_hooks": [
+      "The service might be a custom tool created by The Architect",
+      "It could be a backdoor left by an attacker",
+      "The service might be part of an experiment The Architect was conducting",
+      "It might be communicating with external systems in ways that aren't obvious",
+      "The purpose might be revealed in logs or configuration files"
+    ]
+  },
+  "challenges": [
+    {
+      "id": "unknown_service_investigation",
+      "title": "Mystery Service Investigation",
+      "description": "Investigate the unidentified service running on port {PORT} to determine its purpose and relationship to The Architect's work.",
+      "tasks": [
+        "Identify what process is using port {PORT}",
+        "Determine when the service was installed",
+        "Check for configuration files related to this service",
+        "Analyze network traffic to/from this service",
+        "Determine if the service represents a security risk"
+      ],
+      "hints": [
+        "Use 'sudo lsof -i :{PORT}' to see what process is using the port",
+        "Check /var/log/ directories for related log files",
+        "Look in /etc/ for possible configuration files",
+        "The service might be started from a systemd unit file in /etc/systemd/system/"
+      ],
+      "xp_reward": 85
+    }
+  ],
+  "documentation": {
+    "service_details": "Unidentified services require careful investigation as they might be legitimate custom applications or potentially malicious services.",
+    "security_considerations": [
+      "Determine if the service was intentionally installed",
+      "Check if the service is communicating with unexpected external systems",
+      "Look for signs of tampering or unauthorized installation",
+      "Verify the service doesn't have excessive privileges"
+    ],
+    "related_commands": [
+      "sudo lsof -i :{PORT} - See what process is using the port",
+      "ps -ef | grep $(lsof -i :{PORT} -t) - Get details on the process",
+      "sudo netstat -pln | grep {PORT} - Check network connections",
+      "sudo tcpdump -i any port {PORT} -vv - Monitor traffic on the port",
+      "systemctl list-units --type=service | grep -i $(lsof -i :{PORT} -t) - Find related systemd service"
+    ]
+  }
+}

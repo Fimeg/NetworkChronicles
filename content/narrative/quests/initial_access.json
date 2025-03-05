@@ -1,0 +1,9 @@
+{
+  "id": "initial_access",
+  "name": "Initial System Access",
+  "description": "Gain access to the system and locate The Architect's first message",
+  "tier": 1,
+  "xp": 100,
+  "required_discoveries": ["welcome_message"],
+  "next_quest": "map_network"
+}

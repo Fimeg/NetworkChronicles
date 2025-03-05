@@ -1,0 +1,9 @@
+{
+  "id": "secured_service",
+  "name": "Secured Vulnerable Service",
+  "description": "Successfully implemented firewall rules to block attack traffic",
+  "tier": 1,
+  "xp": 100,
+  "command": ".*iptables.*-A INPUT -s 45\\.33\\.22\\.156.*DROP.*|.*ufw deny from 45\\.33\\.22\\.156.*",
+  "content": "You've successfully secured the system by implementing firewall rules to block traffic from the malicious IP address (45.33.22.156). This follows The Architect's security recommendations and will prevent further attacks from this source. The timing of the attack and The Architect's disappearance suggest a connection worth investigating further."
+}

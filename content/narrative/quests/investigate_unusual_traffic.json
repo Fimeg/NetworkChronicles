@@ -1,0 +1,13 @@
+{
+  "id": "investigate_unusual_traffic",
+  "name": "Investigate Unusual Network Traffic",
+  "description": "The Architect left clues about unusual network traffic. Investigate the logs to uncover what they were tracking.",
+  "tier": 1,
+  "xp": 100,
+  "required_discoveries": ["network_gateway", "local_network", "monitoring_service"],
+  "next_quest": "secure_vulnerable_service",
+  "rewards": [
+    "packet_analyzer_tool",
+    "security_logs_access"
+  ]
+}

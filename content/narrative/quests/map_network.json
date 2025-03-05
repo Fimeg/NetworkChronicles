@@ -1,0 +1,9 @@
+{
+  "id": "map_network",
+  "name": "Map the Network",
+  "description": "Discover and document the network infrastructure",
+  "tier": 1,
+  "xp": 150,
+  "required_discoveries": ["network_gateway", "local_network"],
+  "next_quest": "investigate_unusual_traffic"
+}

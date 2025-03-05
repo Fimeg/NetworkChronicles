@@ -1,0 +1,9 @@
+{
+  "id": "welcome_message",
+  "name": "The Architect's Welcome Message",
+  "description": "A message left by the previous administrator",
+  "tier": 1,
+  "xp": 50,
+  "command": ".*cat.*\\/home\\/player\\/\\.local\\/share\\/network-chronicles\\/message\\.txt.*|.*less.*\\/home\\/player\\/\\.local\\/share\\/network-chronicles\\/message\\.txt.*",
+  "content": "Welcome to the system. I've been expecting you. The network holds many secrets - some I've hidden intentionally, others that emerged on their own. Trust nothing, verify everything. Your journey begins now. - The Architect"
+}

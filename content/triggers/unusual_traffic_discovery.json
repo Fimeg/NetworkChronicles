@@ -1,0 +1,5 @@
+{
+  "pattern": ".*grep.*45\\.33\\.22\\.156.*\\/var\\/log\\/auth\\.log.*|.*cat.*\\/var\\/log\\/auth\\.log.*|.*tail.*\\/var\\/log\\/auth\\.log.*",
+  "event": "unusual_traffic_discovery",
+  "one_time": true
+}

@@ -1,0 +1,9 @@
+{
+  "id": "architects_final_message",
+  "name": "The Architect's Final Message",
+  "description": "A hidden message left by The Architect explaining their disappearance",
+  "tier": 1,
+  "xp": 200,
+  "command": ".*cat.*\\/home\\/player\\/\\.architect\\/final_message\\.txt.*|.*decrypt.*architects_message\\.enc.*",
+  "content": "You've discovered The Architect's final message:\n\n\"To my successor,\n\nIf you're reading this, you've successfully followed my breadcrumbs. I had to disappear quickly after discovering a sophisticated attack targeting our infrastructure. The breach originated from 45.33.22.156, but I suspect this is just a proxy - the real attacker is someone with inside knowledge of our systems.\n\nI've gone offline to investigate the source without alerting them. I'm working with authorities to track down who's behind this. For security reasons, I can't disclose my location.\n\nYou've proven yourself capable. The network is now yours to protect. I've left comprehensive documentation through the challenges you've solved.\n\nYour next task is to map the entire network infrastructure and identify any other potential vulnerabilities. I've laid the groundwork in Tier 2.\n\nStay vigilant,\nThe Architect\""
+}

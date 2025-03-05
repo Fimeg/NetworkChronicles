@@ -1,0 +1,59 @@
+{
+  "service_type": "monitoring",
+  "display_name": "Monitoring System",
+  "related_services": ["prometheus", "grafana", "nagios", "zabbix"],
+  "discovery": {
+    "xp_reward": 35,
+    "notification": "You've discovered a monitoring system! This might contain critical insights into what The Architect was tracking before disappearing."
+  },
+  "narrative": {
+    "journal_entry": {
+      "title": "Monitoring System Discovery",
+      "content": "I've discovered a monitoring system on the network - this is a significant find. The Architect set this up to track something specific, and the metrics and alerts could provide crucial insights. Monitoring systems typically collect data about system health, performance, and security events. If The Architect was investigating something unusual, they might have configured custom alerts or dashboards to track specific patterns. This could be exactly what I need to understand what they were working on before vanishing."
+    },
+    "story_hooks": [
+      "The monitoring system might show anomalies that The Architect was tracking",
+      "Custom dashboards could reveal what metrics were important to The Architect",
+      "Alert configurations might point to specific security concerns",
+      "Historical data could show exactly when unusual activity began",
+      "The monitoring system itself might have been targeted to hide evidence"
+    ]
+  },
+  "challenges": [
+    {
+      "id": "monitoring_analysis",
+      "title": "Monitoring System Analysis",
+      "description": "Investigate the monitoring system to discover what The Architect was tracking and any anomalies that might relate to their disappearance.",
+      "tasks": [
+        "Access the monitoring interface",
+        "Identify what systems and metrics are being monitored",
+        "Locate any custom dashboards created by The Architect",
+        "Check alert configurations and notification history",
+        "Look for unusual patterns or anomalies in the metrics"
+      ],
+      "hints": [
+        "Common monitoring interfaces run on ports like 3000 (Grafana) or 9090 (Prometheus)",
+        "Check for configuration files in /etc/prometheus/ or /etc/grafana/",
+        "Look for alert rules that might have been triggered",
+        "Examine time periods around The Architect's last known activity"
+      ],
+      "xp_reward": 110
+    }
+  ],
+  "documentation": {
+    "service_details": "Monitoring systems collect, analyze, and visualize metrics about systems and applications. They provide valuable insights into performance, usage patterns, and potential issues.",
+    "security_considerations": [
+      "Monitoring interfaces should be properly secured with authentication",
+      "Check what level of access the monitoring system has to various components",
+      "Verify that sensitive data isn't exposed in dashboards or alerts",
+      "Look for signs that the monitoring system itself has been tampered with"
+    ],
+    "related_commands": [
+      "curl localhost:9090/metrics - View Prometheus metrics",
+      "systemctl status prometheus - Check Prometheus service status",
+      "systemctl status grafana-server - Check Grafana service status",
+      "grep -r \"alert\" /etc/prometheus/ - Find alert configurations",
+      "journalctl -u prometheus - View Prometheus service logs"
+    ]
+  }
+}

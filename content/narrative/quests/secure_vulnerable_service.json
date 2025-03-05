@@ -1,0 +1,13 @@
+{
+  "id": "secure_vulnerable_service",
+  "name": "Secure Vulnerable Service",
+  "description": "After discovering the unusual traffic, you need to secure the vulnerable service that was targeted by the attacker.",
+  "tier": 1,
+  "xp": 150,
+  "required_discoveries": ["unusual_traffic"],
+  "next_quest": "analyze_breach_timeline",
+  "rewards": [
+    "firewall_config_tool",
+    "security_badge_tier1"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "unusual_traffic",
+  "name": "Unusual Traffic Patterns",
+  "description": "Evidence of suspicious network activity targeting internal systems",
+  "tier": 1,
+  "xp": 75,
+  "command": ".*grep.*45\\.33\\.22\\.156.*\\/var\\/log\\/auth\\.log.*|.*cat.*\\/var\\/log\\/auth\\.log.*|.*tail.*\\/var\\/log\\/auth\\.log.*",
+  "content": "You've discovered repeated failed login attempts from IP 45.33.22.156 targeting the admin account. This appears to be a brute force attack that was eventually successful. The Architect was monitoring this activity before disappearing."
+}

@@ -1,0 +1,9 @@
+{
+  "id": "network_gateway",
+  "name": "Network Gateway",
+  "description": "The main gateway connecting to external networks",
+  "tier": 1,
+  "xp": 25,
+  "command": ".*ip route.*|.*route -n.*|.*netstat -rn.*|.*ip r.*",
+  "content": "You've discovered the network gateway, which serves as the connection point between the internal network and external networks. This is a critical component of the network infrastructure."
+}
