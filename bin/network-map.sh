@@ -127,7 +127,7 @@ function generate_network_map() {
   fi
   
   # Check for custom/unknown services
-  local has_unknown=false
+  has_unknown=false
   for discovery in $DISCOVERIES; do
     if [[ "$discovery" == *"service_unknown"* ]]; then
       has_unknown=true
@@ -207,7 +207,7 @@ if [[ "$DISCOVERIES" == *"service_mongodb"* ]]; then
 fi
 
 # Unknown services
-local has_unknown=false
+has_unknown=false
 for discovery in $DISCOVERIES; do
   if [[ "$discovery" == *"service_unknown"* ]]; then
     port="${discovery#service_unknown_}"
@@ -294,3 +294,4 @@ esac
 
 echo -e "\nExiting network map viewer."
 exit 0
+
