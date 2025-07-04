@@ -1079,7 +1079,7 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
         return this.enhanceResultWithDiscovery(await this.handleServiceDiscovery(), discoveryResult)
       
       case 'nc-map-network':
-        return this.enhanceResultWithDiscovery(this.handleNetworkMapping(), discoveryResult)
+        return this.enhanceResultWithDiscovery(await this.handleNetworkMapping(), discoveryResult)
       
       case 'nc-status':
         return this.showStatus()
