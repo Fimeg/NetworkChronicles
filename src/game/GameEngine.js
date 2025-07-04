@@ -847,7 +847,7 @@ Note: All references will start with "Well, they sure were sorry about things...
   getWelcomeMessage() {
     return `
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                          NETWORK CHRONICLES V5                              ║
+║                          NETWORK CHRONICLES 2.0                             ║
 ║                         Linux Learning Terminal                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
@@ -904,6 +904,32 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 🎯 The real mystery begins now. What will you discover?`
+  }
+
+  checkForEducationalMoment(command) {
+    // Check if the command might be dangerous
+    const dangerousPatterns = Object.keys(this.dangerousCommands)
+    const matchedPattern = dangerousPatterns.find(pattern => {
+      return command.toLowerCase().includes(pattern.toLowerCase())
+    })
+    
+    if (matchedPattern) {
+      const danger = this.dangerousCommands[matchedPattern]
+      
+      // For high severity commands, trigger embarrassing consequences
+      if (danger.severity === 'high') {
+        return this.triggerEmbarrassingConsequence(danger.consequence, danger.narrative)
+      }
+      
+      // For medium/low severity, just show a warning
+      return {
+        type: 'warning',
+        output: `${danger.warning}\n${danger.narrative}`,
+        xpGained: 0
+      }
+    }
+    
+    return null
   }
 
   async executeCommand(command) {
@@ -1581,7 +1607,7 @@ Next steps: Follow his guidance to uncover the truth.`,
 
     let statusDisplay = `
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                         NETWORK CHRONICLES V5 STATUS                        ║
+║                         NETWORK CHRONICLES 2.0 STATUS                       ║
 ║                        Linux Learning Terminal v5.0                         ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║ OPERATIVE: ${this.player.name.padEnd(20)} ┃ TIER: ${this.player.level.toString().padEnd(15)} ║
