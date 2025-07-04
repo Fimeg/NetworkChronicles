@@ -861,18 +861,19 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
   }
 
   getCurrentQuest() {
-    // Find the next uncompleted quest
-    for (let i = 0; i < this.quests.length; i++) {
-      const quest = this.quests[i]
-      if (!quest.completed && this.canPlayerDoQuest(quest)) {
-        this.currentQuestIndex = i  // Update current quest index
-        return `Quest: ${quest.title}\n${quest.description}\nObjective: ${quest.objective}\nReward: ${quest.xpReward} XP`
-      }
+    // Use the current quest index (managed by findNextQuest)
+    if (this.currentQuestIndex >= this.quests.length) {
+      return this.generateInvestigationGuidance()
     }
 
-    // All quests completed - show investigation guidance
-    this.currentQuestIndex = this.quests.length
-    return this.generateInvestigationGuidance()
+    const quest = this.quests[this.currentQuestIndex]
+    if (quest && !quest.completed) {
+      return `Quest: ${quest.title}\n${quest.description}\nObjective: ${quest.objective}\nReward: ${quest.xpReward} XP`
+    }
+
+    // If current quest is completed, let findNextQuest handle the logic
+    this.findNextQuest()
+    return this.getCurrentQuest()
   }
 
   generateInvestigationGuidance() {
