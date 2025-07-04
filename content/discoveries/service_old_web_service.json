@@ -1,0 +1,8 @@
+{
+  "id": "service_old_web_service",
+  "name": "Old Web Service (Port 8088)",
+  "description": "An outdated and potentially insecure web service.",
+  "type": "service",
+  "xp": 30, 
+  "details_file": "network/services/old_web_service.txt" 
+}

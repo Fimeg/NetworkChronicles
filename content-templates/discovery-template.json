@@ -1,0 +1,61 @@
+{
+  "id": "your_discovery_id",
+  "title": "Discovery Title",
+  "category": "evidence|personal|technical|conspiracy|character",
+  "rarity": "common|uncommon|rare|legendary",
+  "content": {
+    "summary": "Brief one-sentence summary of what was discovered",
+    "details": "Detailed description of the discovery and its significance. This should be 2-3 paragraphs that reveal important information about The Architect, the mystery, or the technical environment.",
+    "implications": [
+      "What this discovery means for the investigation",
+      "How it changes understanding of The Architect",
+      "What new questions or leads it creates"
+    ],
+    "technical_context": "If applicable, explain the technical aspects in an educational way",
+    "narrative_impact": "How this affects the overall story and character development"
+  },
+  "triggers": {
+    "commands": [
+      "command_that_reveals_this_discovery"
+    ],
+    "files": [
+      "/path/to/file/containing/this/info"
+    ],
+    "ports": [
+      8080,
+      9000
+    ],
+    "services": [
+      "service_name_that_triggers_this"
+    ],
+    "quest_completion": [
+      "quest_id_that_unlocks_this"
+    ]
+  },
+  "connections": {
+    "related_discoveries": [
+      "other_discovery_ids_that_connect"
+    ],
+    "character_development": {
+      "the_architect": "How this reveals something about The Architect's personality, methods, or motivations"
+    },
+    "mystery_progression": "How this advances the main mystery or creates new plot threads"
+  },
+  "presentation": {
+    "format": "log_entry|email|note|config_file|memory|report",
+    "style": "technical|personal|official|cryptic",
+    "reveal_method": "immediate|gradual|puzzle"
+  },
+  "metadata": {
+    "author": "your_github_username", 
+    "story_impact": "low|medium|high|critical",
+    "technical_accuracy": "verified|realistic|speculative",
+    "learning_value": [
+      "linux_administration",
+      "network_security",
+      "incident_response",
+      "forensic_analysis"
+    ],
+    "emotional_tone": "mysterious|concerning|revealing|shocking|sad|hopeful"
+  }
+}

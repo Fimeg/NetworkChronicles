@@ -1,13 +1,9 @@
 {
   "id": "investigate_unusual_traffic",
-  "name": "Investigate Unusual Network Traffic",
-  "description": "The Architect left clues about unusual network traffic. Investigate the logs to uncover what they were tracking.",
-  "tier": 1,
-  "xp": 100,
-  "required_discoveries": ["network_gateway", "local_network", "monitoring_service"],
-  "next_quest": "secure_vulnerable_service",
-  "rewards": [
-    "packet_analyzer_tool",
-    "security_logs_access"
-  ]
+  "name": "Investigate Unusual Traffic",
+  "description": "Analyze system logs and network activity to identify the source of suspicious traffic patterns noted by The Architect.",
+  "tier": 2,
+  "xp": 200,
+  "required_discoveries": ["unusual_traffic"],
+  "next_quest": "discover_services" 
 }

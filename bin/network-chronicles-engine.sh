@@ -60,18 +60,39 @@ initialize_player() {
       chmod 755 "/home/${player_id}/Documents" 2>/dev/null || true
     fi
     
-    # Create initial player profile
+    # Create initial player profile (aligned with premise.md)
     cat > "${player_state}/profile.json" << PROFILE
 {
-  "id": "${player_id}",
+  "player_id": "${player_id}",
   "name": "${player_id}",
   "tier": 1,
   "xp": 0,
-  "discoveries": [],
+  "skill_points": {
+    "networking": 0,
+    "security": 0,
+    "systems": 0,
+    "devops": 0
+  },
+  "reputation": {
+    "operations": 0,
+    "security": 0,
+    "development": 0,
+    "management": 0
+  },
   "quests": {
     "current": "initial_access",
     "completed": []
   },
+  "discoveries": [],
+  "inventory": ["basic_terminal", "user_credentials"],
+  "achievements": [],
+  "story_flags": {
+    "met_architect_ai": false,
+    "discovered_breach": false,
+    "found_monitoring_system": false,
+    "decoded_first_message": false
+  },
+  "events": {},
   "created_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
   "last_login": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 }
@@ -123,7 +144,40 @@ get_player_state() {
   return 0
 }
 
-# Update player state
+# Helper function to safely update player profile using jq
+_update_player_profile() {
+  local player_id="$1"
+  local jq_filter="$2"
+  local player_profile=$(get_player_profile "$player_id")
+  
+  if [ ! -f "$player_profile" ]; then
+    log "ERROR" "Player profile not found for update: ${player_id}"
+    return 1
+  fi
+  
+  local tmp_file=$(mktemp)
+  if jq "$jq_filter" "$player_profile" > "$tmp_file"; then
+    # Check if jq produced output (successful update)
+    if [ -s "$tmp_file" ]; then
+      cat "$tmp_file" > "$player_profile"
+      chmod 666 "$player_profile" # Ensure permissions after update
+      log "INFO" "Updated player profile for ${player_id} using filter: ${jq_filter}"
+      rm -f "$tmp_file"
+      return 0
+    else
+      log "ERROR" "jq filter produced empty output for player ${player_id}. Filter: ${jq_filter}"
+      rm -f "$tmp_file"
+      return 1
+    fi
+  else
+    log "ERROR" "jq command failed for player ${player_id}. Filter: ${jq_filter}"
+    rm -f "$tmp_file"
+    # Consider restoring from a backup if implementing backups
+    return 1
+  fi
+}
+
+# Update player state (now uses the helper for consistency, though primarily for direct updates)
 update_player_state() {
   local player_id="$1"
   local player_profile=$(get_player_profile "$player_id")
@@ -157,10 +211,26 @@ add_discovery() {
     return 0
   fi
   
-  # Add discovery to player profile using json-helpers
-  json_add_to_array "$player_profile" ".discoveries" "\"$discovery_id\""
+  # Get XP for the discovery from its definition file
+  local discovery_file="${CONTENT_DIR}/discoveries/${discovery_id}.json"
+  local xp_reward=0
+  if [ -f "$discovery_file" ]; then
+    xp_reward=$(json_get_value "$discovery_file" ".xp // 0")
+  else
+    log "WARNING" "Discovery definition file not found for ${discovery_id}. Awarding 0 XP."
+  fi
   
-  log "INFO" "Added discovery: ${discovery_id} for player: ${player_id}"
+  # Add discovery and XP using the helper function
+  local jq_filter=".discoveries += [\"$discovery_id\"] | .xp += $xp_reward"
+  if _update_player_profile "$player_id" "$jq_filter"; then
+    log "INFO" "Added discovery: ${discovery_id} with ${xp_reward} XP for player: ${player_id}"
+    # Check for tier upgrade after adding XP
+    check_and_upgrade_tier "$player_id"
+  else
+    log "ERROR" "Failed to add discovery ${discovery_id} for player ${player_id}"
+    return 1
+  fi
+  
   return 0
 }
 
@@ -178,19 +248,24 @@ check_and_upgrade_tier() {
   local current_tier=$(json_get_value "$player_profile" ".tier")
   local current_xp=$(json_get_value "$player_profile" ".xp")
   
-  # Calculate XP required for next tier
-  local next_tier_xp=$((current_tier * 500))
+  # Calculate XP required for next tier (aligned with premise.md)
+  local next_tier_xp=$((current_tier * 1000)) 
   
   # Check if player has enough XP to level up
   if [ "$current_xp" -ge "$next_tier_xp" ]; then
-    # Increase tier
+    # Increase tier and award skill points (aligned with premise.md)
     local new_tier=$((current_tier + 1))
-    json_update_field "$player_profile" ".tier" "$new_tier"
     
-    log "INFO" "Player ${player_id} upgraded to tier ${new_tier}"
-    
-    # Trigger tier up event
-    trigger_event "$player_id" "tier_up" "true"
+    # Use helper function for atomic update of tier and skill points
+    local jq_filter=".tier = $new_tier | .skill_points.networking += 1 | .skill_points.security += 1 | .skill_points.systems += 1 | .skill_points.devops += 1"
+    if _update_player_profile "$player_id" "$jq_filter"; then
+        log "INFO" "Player ${player_id} upgraded to tier ${new_tier} and awarded skill points."
+        # Trigger tier up event (pass new tier info)
+        trigger_event "$player_id" "tier_up" "true" "$new_tier"
+    else
+        log "ERROR" "Failed to update player profile for tier upgrade: ${player_id}"
+        # Note: Tier up event won't trigger if update fails
+    fi
     
     return 0
   fi
@@ -217,15 +292,22 @@ complete_quest() {
   fi
   
   # Get next quest and XP using json-helpers
-  local next_quest=$(json_get_value "$quest_file" ".next_quest")
-  local xp=$(json_get_value "$quest_file" ".xp")
+  local next_quest=$(json_get_value "$quest_file" ".next_quest // \"null\"") # Default to null if not present
+  local xp=$(json_get_value "$quest_file" ".xp // 0") # Default to 0 if not present
   
-  # Add to completed quests
-  json_add_to_array "$player_profile" ".quests.completed" "\"$quest_id\""
-  
-  # Update current quest and XP
-  json_update_field "$player_profile" ".quests.current" "\"$next_quest\""
-  json_update_field "$player_profile" ".xp" "(.xp + $xp)"
+  # Construct jq filter for atomic update of quests and XP
+  local jq_filter=""
+  if [ "$next_quest" == "null" ]; then
+    jq_filter=".quests.completed += [\"$quest_id\"] | .quests.current = null | .xp += $xp"
+  else
+    jq_filter=".quests.completed += [\"$quest_id\"] | .quests.current = \"$next_quest\" | .xp += $xp"
+  fi
+
+  # Use helper function to update profile
+  if ! _update_player_profile "$player_id" "$jq_filter"; then
+    log "ERROR" "Failed to update player profile after completing quest: ${quest_id}"
+    return 1
+  fi
   
   # Check if player can upgrade tier
   check_and_upgrade_tier "$player_id"
@@ -305,12 +387,7 @@ display_status() {
   local player_id="$1"
   local player_profile=$(get_player_profile "$player_id")
   
-  echo "Set permissions on player directory"
-  # Make sure player Document directories exist using utility function
-  ensure_player_documents "$player_id" 2>/dev/null
-  
-  # Also ensure home Documents directory exists if possible
-  mkdir -p "/home/${player_id}/Documents" 2>/dev/null
+  # NOTE: Removed directory/permission checks here. Assumed handled by init/fix_permissions.
   
   if [ ! -f "$player_profile" ]; then
     log "ERROR" "Player profile not found: ${player_id}"
@@ -324,10 +401,12 @@ display_status() {
   local current_quest=$(json_get_value "$player_profile" '.quests.current')
   local completed_quests=$(json_get_value "$player_profile" '.quests.completed | length')
   local discoveries=$(json_get_value "$player_profile" '.discoveries | length')
+  local skill_points=$(json_get_value "$player_profile" '.skill_points | to_entries | map("\(.key): \(.value)") | join(", ")')
   
-  # Calculate XP Progress
-  local xp_for_next_tier=$((tier * 500))
+  # Calculate XP Progress (aligned with premise.md)
+  local xp_for_next_tier=$((tier * 1000))
   local xp_percent=$((xp * 100 / xp_for_next_tier))
+  if [ "$xp_percent" -gt 100 ]; then xp_percent=100; fi # Cap at 100%
   
   # Select tier color
   local tier_color=${GREEN}
@@ -360,6 +439,7 @@ display_status() {
   echo -e "${CYAN}┃${RESET} ${YELLOW}Access Tier:${RESET} ${tier_color}${tier}${RESET}"
   echo -e "${CYAN}┃${RESET} ${YELLOW}XP:${RESET} ${CYAN}${xp}${RESET}/${xp_for_next_tier}"
   echo -e "${CYAN}┃${RESET} ${YELLOW}XP Progress:${RESET} ${GREEN}[${progress}]${RESET} ${xp_percent}%"
+  echo -e "${CYAN}┃${RESET} ${YELLOW}Skill Points:${RESET} ${MAGENTA}${skill_points}${RESET}"
   echo -e "${CYAN}┃${RESET} ${YELLOW}Completed Quests:${RESET} ${CYAN}${completed_quests}${RESET}"
   echo -e "${CYAN}┃${RESET} ${YELLOW}Discoveries:${RESET} ${CYAN}${discoveries}${RESET}"
   
@@ -602,137 +682,14 @@ process_command() {
   # Log command for analysis (with timestamp)
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] CMD: $cmd" >> "${LOGS_DIR}/commands_${player_id}.log" 2>/dev/null
   
-  # NETWORK GATEWAY DETECTION
-  # Use simple grep patterns that are more likely to match in various shells
-  if echo "$cmd" | grep -E 'ip[[:space:]]*route|route[[:space:]]*-n|netstat[[:space:]]*-rn|ip[[:space:]]*r' > /dev/null 2>&1; then
-    echo "[DEBUG] Detected network gateway command: $cmd" >> "${LOGS_DIR}/engine_debug.log" 2>/dev/null
-    
-    # Check if discovery already exists
-    if ! grep -q '"network_gateway"' "$player_profile" 2>/dev/null; then
-      echo "[DEBUG] Adding network_gateway discovery" >> "${LOGS_DIR}/engine_debug.log" 2>/dev/null
-      
-      # Create a backup of the profile
-      cp "$player_profile" "${player_profile}.bak" 2>/dev/null
-      
-      # Try to add discovery using jq
-      local tmp_file=$(mktemp)
-      jq '.discoveries += ["network_gateway"] | .xp += 25' "$player_profile" > "$tmp_file" 2>/dev/null
-      
-      # Check if jq succeeded
-      if [ $? -eq 0 ] && [ -s "$tmp_file" ]; then
-        # Replace profile with updated version
-        cat "$tmp_file" > "$player_profile"
-        chmod 666 "$player_profile"
-        
-        # Notify player
-        echo -e "\n${GREEN}[DISCOVERY]${RESET} You've mapped the network gateway! (+25 XP)"
-        echo "[DEBUG] Successfully added network_gateway discovery" >> "${LOGS_DIR}/engine_debug.log" 2>/dev/null
-      else
-        # Fallback method if jq fails
-        echo "[DEBUG] jq failed, using fallback method" >> "${LOGS_DIR}/engine_debug.log" 2>/dev/null
-        
-        # Restore from backup if jq failed
-        if [ -f "${player_profile}.bak" ]; then
-          cp "${player_profile}.bak" "$player_profile"
-          
-          # Manual JSON editing as last resort
-          sed -i 's/"discoveries":\[/"discoveries":\["network_gateway",/g' "$player_profile" 2>/dev/null
-          sed -i 's/"xp":[0-9]*/"xp":$(($(grep -o '"xp":[0-9]*' "$player_profile" | cut -d':' -f2) + 25))/g' "$player_profile" 2>/dev/null
-          
-          echo -e "\n${GREEN}[DISCOVERY]${RESET} You've mapped the network gateway! (+25 XP)"
-        fi
-      fi
-      
-      # Clean up
-      rm -f "$tmp_file" "${player_profile}.bak" 2>/dev/null
-    fi
-  fi
+  # NOTE: Hardcoded discovery logic for 'ip route' and 'ip addr' removed.
+  # This logic is redundant with nc-shell-integration.sh preexec hook
+  # and should ideally be handled by the trigger system below.
   
-  # LOCAL NETWORK DETECTION
-  # Use simple grep patterns that are more likely to match in various shells  
-  if echo "$cmd" | grep -E 'ip[[:space:]]*addr|ifconfig|ip[[:space:]]*a' > /dev/null 2>&1; then
-    echo "[DEBUG] Detected local network command: $cmd" >> "${LOGS_DIR}/engine_debug.log" 2>/dev/null
-    
-    # Check if discovery already exists
-    if ! grep -q '"local_network"' "$player_profile" 2>/dev/null; then
-      echo "[DEBUG] Adding local_network discovery" >> "${LOGS_DIR}/engine_debug.log" 2>/dev/null
-      
-      # Create a backup of the profile
-      cp "$player_profile" "${player_profile}.bak" 2>/dev/null
-      
-      # Try to add discovery using jq
-      local tmp_file=$(mktemp)
-      jq '.discoveries += ["local_network"] | .xp += 25' "$player_profile" > "$tmp_file" 2>/dev/null
-      
-      # Check if jq succeeded
-      if [ $? -eq 0 ] && [ -s "$tmp_file" ]; then
-        # Replace profile with updated version
-        cat "$tmp_file" > "$player_profile"
-        chmod 666 "$player_profile"
-        
-        # Notify player
-        echo -e "\n${GREEN}[DISCOVERY]${RESET} You've mapped the local network configuration! (+25 XP)"
-        echo "[DEBUG] Successfully added local_network discovery" >> "${LOGS_DIR}/engine_debug.log" 2>/dev/null
-      else
-        # Fallback method if jq fails
-        echo "[DEBUG] jq failed, using fallback method" >> "${LOGS_DIR}/engine_debug.log" 2>/dev/null
-        
-        # Restore from backup if jq failed
-        if [ -f "${player_profile}.bak" ]; then
-          cp "${player_profile}.bak" "$player_profile"
-          
-          # Manual JSON editing as last resort
-          sed -i 's/"discoveries":\[/"discoveries":\["local_network",/g' "$player_profile" 2>/dev/null
-          sed -i 's/"xp":[0-9]*/"xp":$(($(grep -o '"xp":[0-9]*' "$player_profile" | cut -d':' -f2) + 25))/g' "$player_profile" 2>/dev/null
-          
-          echo -e "\n${GREEN}[DISCOVERY]${RESET} You've mapped the local network configuration! (+25 XP)"
-        fi
-      fi
-      
-      # Clean up
-      rm -f "$tmp_file" "${player_profile}.bak" 2>/dev/null
-    fi
-  fi
+  # NOTE: Service discovery hinting logic removed.
+  # This should be triggered by an event (e.g., completing map_network quest).
   
-  # SERVICE DISCOVERY TRIGGERS
-  # Look for commands that might be checking for services
-  if echo "$cmd" | grep -E 'ss[[:space:]]*-tuln|netstat[[:space:]]*-tuln|lsof[[:space:]]*-i|nmap|nc-discover-services' > /dev/null 2>&1; then
-    echo "[DEBUG] Detected service discovery command: $cmd" >> "${LOGS_DIR}/engine_debug.log" 2>/dev/null
-    
-    # Check if we should run service discovery based on if the player has the basic network mapped
-    local has_network=$(json_get_value "$player_profile" '.discoveries | contains(["local_network", "network_gateway"]) | length == 2')
-    
-    if [ "$has_network" = "true" ]; then
-      # Player has mapped basic network, trigger service discovery
-      if [ ! -f "${player_state}/flags/service_discovery_triggered" ]; then
-        mkdir -p "${player_state}/flags"
-        touch "${player_state}/flags/service_discovery_triggered"
-        
-        # Add a notification suggesting service discovery
-        echo -e "\n${CYAN}[HINT]${RESET} Now that you've mapped the basic network, you might want to discover what services are running."
-        echo -e "${CYAN}[HINT]${RESET} Try running ${GREEN}nc-discover-services.sh${RESET} to scan for active services."
-        
-        # Mark in profile that service discovery is available
-        json_update_field "$player_profile" ".service_discovery_available" "true"
-      fi
-      
-      # For direct nc-discover-services command, run the service discovery script
-      if echo "$cmd" | grep -E 'nc-discover-services' > /dev/null 2>&1; then
-        echo "[DEBUG] Automatically triggering service discovery script" >> "${LOGS_DIR}/engine_debug.log" 2>/dev/null
-        
-        # Instead of running here, we'll let the command run naturally, as that's more reliable
-        # The separate script will handle the service discovery process
-      fi
-    else
-      # Player hasn't mapped the network yet, give a hint
-      echo -e "\n${YELLOW}[HINT]${RESET} Before discovering services, you need to map the basic network structure."
-      echo -e "${YELLOW}[HINT]${RESET} Try commands like ${GREEN}ip route${RESET} and ${GREEN}ip addr${RESET} to map the network."
-    fi
-  fi
-  
-  # Fix permissions to ensure changes are accessible
-  chmod 666 "$player_profile" 2>/dev/null
-  chmod -R 777 "$player_state" 2>/dev/null
+  # NOTE: Removed chmod calls here. Permissions should be handled by init/fix_permissions command or specific file creation events.
   
   return 0
 }
@@ -823,8 +780,12 @@ mark_event_triggered() {
     json_update_field "$player_profile" ".events" "{}"
   fi
   
-  # Set the event flag
-  json_update_field "$player_profile" ".events.${event_id}" "true"
+  # Set the event flag using helper function
+  local jq_filter=".events.${event_id} = true"
+  if ! _update_player_profile "$player_id" "$jq_filter"; then
+     log "ERROR" "Failed to mark event ${event_id} as triggered for player ${player_id}"
+     return 1
+  fi
   
   return 0
 }
@@ -834,6 +795,7 @@ trigger_event() {
   local player_id="$1"
   local event_id="$2"
   local force="${3:-false}"  # Optional parameter to force triggering
+  local event_arg="${4:-}"   # Optional argument for the event script (e.g., new tier)
   local event_script="${CONTENT_DIR}/events/${event_id}.sh"
   
   # Check if event has already been triggered (unless forced)
@@ -843,11 +805,14 @@ trigger_event() {
   fi
   
   if [ -f "$event_script" ] && [ -x "$event_script" ]; then
-    log "INFO" "Triggering event: ${event_id} for player: ${player_id}"
-    "$event_script" "$player_id"
+    log "INFO" "Triggering event: ${event_id} for player: ${player_id} with arg: ${event_arg}"
+    # Pass player_id and optional argument to the event script
+    "$event_script" "$player_id" "$event_arg"
     
-    # Mark event as triggered
-    mark_event_triggered "$player_id" "$event_id"
+    # Mark event as triggered (only if not forced, or handle specific forced logic if needed)
+    if [ "$force" != "true" ]; then
+      mark_event_triggered "$player_id" "$event_id"
+    fi
     
     log "INFO" "Event complete: ${event_id} for player: ${player_id}"
     return 0
@@ -870,25 +835,24 @@ main() {
       trigger_event "$1" "onboarding"
       ;;
     status)
-      # Try to fix permissions before showing status
-      fix_permissions "$1" >/dev/null 2>&1
+      # fix_permissions "$1" >/dev/null 2>&1 # Removed redundant call
       display_status "$1"
       ;;
     get-state)
-      fix_permissions "$1" >/dev/null 2>&1
+      # fix_permissions "$1" >/dev/null 2>&1 # Removed redundant call
       get_player_state "$1"
       ;;
     update-state)
       update_player_state "$1"
-      fix_permissions "$1" >/dev/null 2>&1
+      # fix_permissions "$1" >/dev/null 2>&1 # Removed redundant call
       ;;
     add-discovery)
       add_discovery "$1" "$2"
-      fix_permissions "$1" >/dev/null 2>&1
+      # fix_permissions "$1" >/dev/null 2>&1 # Removed redundant call
       ;;
     complete-quest)
       complete_quest "$1" "$2"
-      fix_permissions "$1" >/dev/null 2>&1
+      # fix_permissions "$1" >/dev/null 2>&1 # Removed redundant call
       ;;
     fix-permissions)
       fix_permissions "$1"

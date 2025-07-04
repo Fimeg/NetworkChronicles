@@ -1,6 +1,22 @@
-# Network Chronicles: The Vanishing Admin
+# Network Chronicles 2.0: The Vanishing Admin
 
-A gamified self-discovering documentation system that transforms traditional network documentation into an immersive mystery adventure.
+⚠️ **ALPHA RELEASE - TESTERS WELCOME!** ⚠️
+
+🚀 **MAJOR REWRITE** - Interactive Linux learning terminal with real-time system integration and personalized narratives.
+
+## 🧪 Alpha Testing Notice
+
+**This is an alpha release seeking testers and feedback!**
+
+- **Expect changes**: Story elements, commands, and features may change significantly
+- **No migration support**: Moving from older versions is not supported  
+- **Breaking changes**: Future updates may require starting fresh
+- **Feedback welcome**: Issues, suggestions, and contributions are encouraged
+- **Solo development**: Please be patient with response times
+
+**Perfect for**: Linux learners, cyberpunk fans, interactive fiction enthusiasts, and anyone who wants to help shape an innovative learning platform.
+
+A gamified Linux learning system that transforms traditional system administration training into an immersive cyberpunk mystery adventure.
 
 ![Network Chronicles Logo](assets/images/logo.png)
 

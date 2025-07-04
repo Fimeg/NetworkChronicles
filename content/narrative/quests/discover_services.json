@@ -1,9 +1,11 @@
 {
   "id": "discover_services",
   "name": "Discover Network Services",
-  "description": "Identify what services are running on the network and document them",
+  "description": "Identify and document the services running on the local network infrastructure.",
   "tier": 2,
   "xp": 150,
-  "required_discoveries": ["network_gateway", "local_network"],
-  "next_quest": "investigate_unusual_traffic"
+  "required_discoveries": [
+    "services_scan_complete" 
+  ],
+  "next_quest": "secure_vulnerable_service" 
 }

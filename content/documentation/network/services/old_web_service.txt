@@ -1,0 +1,20 @@
+SERVICE DETAILS: Old Web Service
+=====================================
+Service Type: Custom Web Service (Legacy)
+Port: 8088
+Status: Active (Detected via Scan)
+Discovery Date: [Timestamp Added by Discovery Script]
+
+DESCRIPTION:
+This service running on port 8088 appears to be a custom web application left behind by The Architect. It doesn't match standard known services. The configuration seems minimal, and the underlying framework might be outdated.
+
+SECURITY NOTES:
+- Running on a non-standard port (8088).
+- No HTTPS configured. Communication is likely unencrypted.
+- Default configuration files might be exposed.
+- Appears to be based on 'SimpleWebServer v1.1' - known vulnerabilities exist for versions prior to v1.5.
+- **This service should be considered insecure and potentially vulnerable.**
+
+ACTION REQUIRED:
+- Investigate the service further.
+- Consider disabling or securing this service immediately.

@@ -1,0 +1,6 @@
+{
+  "event": "network_gateway_discovery",
+  "pattern": "ip[[:space:]]*route|route[[:space:]]*-n|netstat[[:space:]]*-rn|ip[[:space:]]*r",
+  "one_time": true,
+  "requirements": {}
+}

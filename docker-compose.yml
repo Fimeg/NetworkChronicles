@@ -5,33 +5,24 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: network-chronicles
+    container_name: network-chronicles-2.0
     volumes:
-      # Mount bin directory directly instead of using a volume
-      - ./bin:/opt/network-chronicles/bin
-      - ./content:/opt/network-chronicles/content:ro
-      - ./src:/opt/network-chronicles/src:ro
-      - ./config:/opt/network-chronicles/config:ro
-      - ./docs:/opt/network-chronicles/docs:ro
-      - network-chronicles-data:/opt/network-chronicles/data
-      - network-chronicles-logs:/opt/network-chronicles/logs
+      - network-chronicles-data:/app/data
+      - network-chronicles-logs:/app/logs
+      - network-chronicles-user-data:/app/user-data
     ports:
-      - "3000:3000"  # API and Web UI
-      - "2222:22"    # SSH (if enabled)
+      - "3000:3000"  # Web UI and API
     environment:
-      - NODE_ENV=development
-      - API_ENABLED=true
-      - WEB_UI_ENABLED=true
-      - MULTIPLAYER_ENABLED=false
+      - NODE_ENV=production
+      - PORT=3000
       - LOG_LEVEL=info
-      - JWT_SECRET=your-secret-key-change-in-production
-    command: /bin/bash
-    stdin_open: true
-    tty: true
     restart: unless-stopped
-    # Disable SELinux to prevent permission issues with files
-    security_opt:
-      - label=disable
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
       - network-chronicles-net
 
@@ -65,12 +56,12 @@ services:
   #   restart: unless-stopped
 
 volumes:
-  network-chronicles-bin:
-    name: network-chronicles-bin
   network-chronicles-data:
-    name: network-chronicles-data
+    name: network-chronicles-2.0-data
   network-chronicles-logs:
-    name: network-chronicles-logs
+    name: network-chronicles-2.0-logs
+  network-chronicles-user-data:
+    name: network-chronicles-2.0-user-data
   # mongodb-data:
   #   name: network-chronicles-mongodb-data
   # redis-data:

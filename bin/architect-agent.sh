@@ -56,6 +56,67 @@ check_requirements() {
   return 0
 }
 
+# --- Conversation History Management ---
+
+# Get the path to the conversation history file
+get_history_file_path() {
+    local player_id="$1"
+    local player_state_dir=$(get_player_state_dir "$player_id")
+    echo "${player_state_dir}/conversation_history.json"
+}
+
+# Load conversation history for a player
+load_conversation_history() {
+    local player_id="$1"
+    local history_file=$(get_history_file_path "$player_id")
+
+    if [ ! -f "$history_file" ]; then
+        # Return an empty JSON array if the file doesn't exist
+        echo "[]"
+        return
+    fi
+
+    # Load history, default to empty array on error
+    jq -c '.' "$history_file" 2>/dev/null || echo "[]"
+}
+
+# Add a message to the conversation history
+add_to_conversation_history() {
+    local player_id="$1"
+    local role="$2" # 'user' or 'assistant'
+    local content="$3"
+    local history_file=$(get_history_file_path "$player_id")
+
+    # Ensure the history file exists with an empty array if new
+    if [ ! -f "$history_file" ]; then
+        mkdir -p "$(dirname "$history_file")"
+        echo "[]" > "$history_file"
+        chmod 666 "$history_file" # Ensure permissions
+    fi
+
+    # Create the new message object
+    local new_message=$(jq -nc --arg role "$role" --arg content "$content" \
+        '{role: $role, content: $content}')
+
+    # Append the new message to the history array
+    local tmp_file=$(mktemp)
+    jq ". + [$new_message]" "$history_file" > "$tmp_file"
+
+    if [ $? -eq 0 ] && [ -s "$tmp_file" ]; then
+        cat "$tmp_file" > "$history_file"
+        chmod 666 "$history_file" # Re-ensure permissions
+        _agent_log "Added '$role' message to history for $player_id."
+    else
+        _agent_log "ERROR: Failed to add message to history for $player_id."
+        rm -f "$tmp_file"
+        return 1
+    fi
+    rm -f "$tmp_file"
+    return 0
+}
+
+# --- LLM Interaction ---
+
 # The base system prompt that defines The Architect's character
 get_system_prompt() {
   cat << 'EOF'
@@ -126,49 +187,60 @@ query_llm_api() {
   local user_message="$2"
   local response_file=$(mktemp)
   
-  # Get the full context for the conversation
-  local context=$(get_architect_context "$player_id")
+  # Get the full context using the context manager
+  _agent_log "Gathering context for player: $player_id"
+  # Note: assemble_full_context currently echoes the context. Capture it.
+  local player_context_output=$(assemble_full_context "$player_id") 
+  if [ $? -ne 0 ]; then
+      _agent_log "ERROR: Failed to assemble context via context-manager.sh"
+      player_context_output="Context Unavailable."
+  fi
   
-  # Extract conversation history in the format the API expects
-  local conversation_history=$(echo "$context" | jq -r '.conversation_history | map({role: .role, content: .content})')
-  
-  # Check if conversation history is empty or null
-  if [ "$conversation_history" = "null" ] || [ "$conversation_history" = "[]" ]; then
-    conversation_history='[]'
+  # Load conversation history
+  _agent_log "Loading conversation history for $player_id"
+  local conversation_history=$(load_conversation_history "$player_id")
+  # Ensure it's a valid JSON array, default to empty if not
+  if ! echo "$conversation_history" | jq -e 'type == "array"' > /dev/null 2>&1; then
+      _agent_log "WARNING: Invalid or missing conversation history, starting fresh."
+      conversation_history="[]"
   fi
   
   # Get the system prompt
   local system_prompt=$(get_system_prompt)
   
-  # Prepare player context summary
-  local tier=$(echo "$context" | jq -r '.player_info.tier')
-  local current_quest=$(echo "$context" | jq -r '.player_info.current_quest')
-  local discoveries=$(echo "$context" | jq -r '.player_info.discoveries | join(", ")')
+  # Use the assembled context directly
+  # Remove the placeholder context_summary logic
   
-  # Create a context summary for the LLM
-  local context_summary="Player Info - Tier: $tier, Current Quest: $current_quest, Discoveries: $discoveries"
-  
-  # Prepare the API request payload
+  # Prepare the API request payload using the gathered context
   # This example is for Claude API, adjust as needed for other LLMs
-  local payload=$(cat << EOF
-{
-  "model": "claude-3-opus-20240229",
-  "max_tokens": 500,
-  "temperature": 0.7,
-  "messages": [
-    {
-      "role": "system",
-      "content": "$system_prompt\n\nCurrent context: $context_summary"
-    },
-    $(echo "$conversation_history" | jq -c '.[]' | sed 's/$/,/g' | tr -d '\n' | sed 's/,$//')
-    {
-      "role": "user",
-      "content": "$user_message"
-    }
-  ]
-}
-EOF
-)
+  # Ensure the context is properly escaped for JSON
+  local escaped_system_prompt=$(echo "$system_prompt" | jq -Rs .)
+  local escaped_player_context=$(echo "$player_context_output" | jq -Rs .)
+  local escaped_user_message=$(echo "$user_message" | jq -Rs .)
+
+  # Construct the messages array dynamically
+  # Start with system prompt including context
+  local messages_json="[{\"role\": \"system\", \"content\": ${escaped_system_prompt} + \"\\n\\n--- Player Context ---\\n\" + ${escaped_player_context} + \"\\n--- End Context ---\"}"
+  
+  # Add conversation history (if implemented and not empty)
+  if [ "$conversation_history" != "[]" ]; then
+      messages_json+=$(echo "$conversation_history" | jq -c '.[]' | sed 's/^/, /')
+  fi
+  
+  # Add the current user message
+  messages_json+=", {\"role\": \"user\", \"content\": ${escaped_user_message}}]"
+
+  # Create the final payload using jq to ensure valid JSON
+  local payload=$(jq -nc \
+    --argjson messages "$messages_json" \
+    '{
+      "model": "claude-3-opus-20240229", 
+      "max_tokens": 500, 
+      "temperature": 0.7, 
+      "messages": $messages
+    }')
+  
+  _agent_log "Generated Payload: $payload" # Debugging payload
 
   # Call the API (replace with appropriate endpoints and headers)
   # This is a placeholder for actual API call
@@ -221,9 +293,12 @@ send_message_to_architect() {
   local message="$2"
   
   # Add the user message to conversation history
-  add_to_conversation_history "$player_id" "user" "$message"
+  if ! add_to_conversation_history "$player_id" "user" "$message"; then
+      _agent_log "ERROR: Failed to save user message to history."
+      # Decide if we should proceed without saving or abort
+  fi
   
-  # Query the LLM API
+  # Query the LLM API (which now loads history internally)
   local response=$(query_llm_api "$player_id" "$message")
   
   # Check if the query was successful
@@ -234,7 +309,10 @@ send_message_to_architect() {
   fi
   
   # Add the response to conversation history
-  add_to_conversation_history "$player_id" "assistant" "$response"
+  if ! add_to_conversation_history "$player_id" "assistant" "$response"; then
+      _agent_log "ERROR: Failed to save assistant response to history."
+      # Decide how to handle this, maybe just log and continue
+  fi
   
   # Stylize and return the response
   stylize_message "$response"

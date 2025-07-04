@@ -1,0 +1,8 @@
+{
+  "event": "vulnerable_service_secured",
+  "pattern": ".*nc-secure-service.*old_web_service.*",
+  "one_time": true,
+  "requirements": {
+     "discoveries": ["vulnerable_service_identified"] 
+  }
+}

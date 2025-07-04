@@ -1,20 +1,17 @@
-# Discover Network Services
+### Current Objective: Discover Network Services
 
-Now that you've mapped the basic network infrastructure, it's time to identify the services running on this network. The Architect must have set up various services for specific purposes, and understanding what's running could provide critical clues.
+**Briefing:** Having investigated the initial suspicious traffic, it's time to get a clearer picture of what's actually running on this network. The Architect likely had various services deployed, some standard, some perhaps custom or hidden. Mapping these services is crucial for understanding the infrastructure and potential vulnerabilities.
 
-## Objectives:
-- Scan the network to discover running services
-- Document what you find in your journal
-- Look for unusual or unexpected services
+**Tasks:**
+- Use network scanning tools to identify listening ports and services on the local machine.
+- If you identify other hosts on the network (e.g., via `ip neigh` or previous discoveries), attempt to scan them as well.
+- Document the discovered services, their ports, and potential purposes in your journal or documentation files.
+- Pay attention to any services running on non-standard ports.
 
-## Approach:
-1. Use the `nc-discover-services` command to run an automated service discovery
-2. Alternatively, use common network tools like `ss -tuln`, `netstat -tuln`, or `lsof -i` to find services
-3. Examine the discovered services for anything suspicious or noteworthy
+**Hints:**
+- The command `nc-discover-services.sh` is designed for this task. Run it without arguments to scan the local machine.
+- You can also try scanning specific IP addresses you've discovered using `nc-discover-services.sh [target_ip]`.
+- Tools like `ss -tuln`, `netstat -tuln`, or `nmap` (if installed) can provide service information.
+- The discovery `services_scan_complete` will be logged once you successfully run the discovery script.
 
-## Hints:
-- Services run on specific ports (e.g., HTTP on 80, SSH on 22)
-- Standard services are expected, but custom services on unusual ports could be significant
-- The Architect might have left messages or clues in service configurations
-
-Remember: Document everything you find. What seems unimportant now might be the key to solving the mystery later.
+**Objective:** Create a comprehensive inventory of active network services to understand the system's functionality and potential attack surface.

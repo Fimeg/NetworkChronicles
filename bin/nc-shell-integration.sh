@@ -521,89 +521,14 @@ function nc_preexec() {
     return 0
   fi
   
-  # DIRECT DISCOVERY DETECTION
-  # Display styled discovery notification
-  display_discovery() {
-    local discovery_name="$1"
-    local discovery_desc="$2"
-    local xp_gained="$3"
-    
-    # Clear screen to make room for the notification
-    clear
-    
-    # ASCII art for discoveries
-    echo -e "${GREEN}"
-    echo -e "╔═════════════════════════════════════════════════════════════════╗"
-    echo -e "║  _____  _                                   _                   ║"
-    echo -e "║ |  __ \(_)                                 | |                  ║"
-    echo -e "║ | |  | |_ ___  ___ _____   _____ _ __ _   _| |                  ║"
-    echo -e "║ | |  | | / __|/ __/ _ \ \ / / _ \ '__| | | | |                  ║"
-    echo -e "║ | |__| | \__ \ (_| (_) \ V /  __/ |  | |_| |_|                  ║"
-    echo -e "║ |_____/|_|___/\___\___/ \_/ \___|_|   \__, (_)                  ║"
-    echo -e "║                                        __/ |                    ║"
-    echo -e "║                                       |___/                     ║"
-    echo -e "╚═════════════════════════════════════════════════════════════════╝${RESET}"
-    
-    # Display discovery info in a styled box
-    local width=$(tput cols)
-    local box_width=$((width - 4))
-    local border_line=""
-    for ((i=0; i<box_width; i++)); do border_line+="─"; done
-    
-    echo -e "\n${CYAN}┌${border_line}┐${RESET}"
-    echo -e "${CYAN}│${RESET} ${GREEN}${discovery_name}${RESET}${CYAN}$(printf "%$((box_width - ${#discovery_name} - 1))s")│${RESET}"
-    echo -e "${CYAN}├${border_line}┤${RESET}"
-    echo -e "${CYAN}│${RESET} ${discovery_desc}${CYAN}$(printf "%$((box_width - ${#discovery_desc} - 1))s")│${RESET}"
-    echo -e "${CYAN}│${RESET}${CYAN}$(printf "%$((box_width))s")│${RESET}"
-    echo -e "${CYAN}│${RESET} ${YELLOW}+${xp_gained} XP gained!${RESET}${CYAN}$(printf "%$((box_width - ${#xp_gained} - 13))s")│${RESET}"
-    echo -e "${CYAN}└${border_line}┘${RESET}"
-    
-    # Wait for user to press a key
-    echo -e "\nPress any key to continue..."
-    read -n 1 -s
-    
-    # Restore prompt
-    nc_prompt
-    show_hint
-  }
-
-  # Network gateway detection
-  if echo "$cmd" | grep -E 'ip route|route -n|netstat -rn|ip r' >/dev/null 2>&1; then
-    # Add discovery directly to profile
-    profile="/opt/network-chronicles/data/players/${PLAYER_ID}/profile.json"
-    
-    if [ -f "$profile" ] && ! grep -q '"network_gateway"' "$profile" 2>/dev/null; then
-      tmp=$(mktemp)
-      jq '.discoveries += ["network_gateway"] | .xp += 25' "$profile" > "$tmp" 2>/dev/null
-      if [ $? -eq 0 ]; then
-        cat "$tmp" > "$profile"
-        chmod 666 "$profile"
-        
-        # Display styled discovery notification
-        display_discovery "Network Gateway" "You've discovered the network gateway infrastructure." "25"
-      fi
-      rm -f "$tmp"
-    fi
-  fi
+  # NOTE: Removed direct discovery detection logic (ip route, ip addr) and 
+  # the display_discovery function from this pre-execution hook.
+  # Discoveries should be handled by the engine's trigger system 
+  # after the command executes.
   
-  # Local network detection
-  if echo "$cmd" | grep -E 'ip addr|ifconfig|ip a' >/dev/null 2>&1; then
-    # Add discovery directly to profile
-    profile="/opt/network-chronicles/data/players/${PLAYER_ID}/profile.json"
-    
-    if [ -f "$profile" ] && ! grep -q '"local_network"' "$profile" 2>/dev/null; then
-      tmp=$(mktemp)
-      jq '.discoveries += ["local_network"] | .xp += 25' "$profile" > "$tmp" 2>/dev/null
-      if [ $? -eq 0 ]; then
-        cat "$tmp" > "$profile"
-        chmod 666 "$profile"
-        
-        # Display styled discovery notification
-        display_discovery "Local Network" "You've mapped the local network infrastructure." "25"
-      fi
-      rm -f "$tmp"
-    fi
-  fi
+  # Pass the command to the engine for processing triggers/events
+  # Run in background to avoid blocking the terminal prompt
+  ("$ENGINE" process "$cmd" "$PLAYER_ID" &)
   
   return 0
 }

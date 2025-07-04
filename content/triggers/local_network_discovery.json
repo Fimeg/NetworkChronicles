@@ -1,0 +1,6 @@
+{
+  "event": "local_network_discovery",
+  "pattern": "ip[[:space:]]*addr|ifconfig|ip[[:space:]]*a",
+  "one_time": true,
+  "requirements": {}
+}

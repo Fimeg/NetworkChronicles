@@ -1,23 +1,16 @@
-# Investigate Unusual Network Traffic
+### Current Objective: Investigate Unusual Traffic
 
-Your exploration of the network has uncovered a monitoring service that The Architect set up before disappearing. The logs from this service may contain clues about unusual network traffic they were investigating.
+**Briefing:** The Architect mentioned unusual traffic patterns and potential compromises before disappearing. Your network mapping confirms basic connectivity, but something feels off. You need to dig deeper into system activity.
 
-## Objectives
+**Tasks:**
+- Examine system authentication logs (`/var/log/auth.log` or similar) for suspicious login attempts.
+- Analyze network connection logs or use tools like `ss` or `netstat` to identify strange connections.
+- Look for patterns involving external IP addresses, especially repeated failed attempts or connections at odd hours.
+- Correlate findings with The Architect's known last login time.
 
-1. Access the monitoring service at 192.168.1.42:8080
-2. Analyze the security logs for suspicious patterns
-3. Identify the source and destination of unusual traffic
-4. Document your findings in your journal
+**Hints:**
+- Pay close attention to failed login attempts from unfamiliar IP addresses.
+- The `grep` command is useful for searching log files for specific patterns (e.g., IP addresses, usernames, "failed").
+- The discovery `unusual_traffic` will be logged automatically when you investigate the relevant logs or network states.
 
-## Hints
-
-- Look for repeated connection attempts from unexpected IP addresses
-- Check for large data transfers at unusual times
-- The Architect may have left comments in the logs
-- Use commands like `grep`, `awk`, and `sort` to analyze log data
-
-## Rewards
-
-- Access to packet analyzer tools
-- Security log analysis skills
-- XP towards Tier 2 access
+**Objective:** Identify and document the source of the suspicious activity to understand the potential threat The Architect faced.

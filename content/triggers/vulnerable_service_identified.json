@@ -1,0 +1,8 @@
+{
+  "event": "vulnerable_service_identified",
+  "pattern": ".*(cat|less|more|head|tail).*/documentation/network/services/old_web_service\\.txt.*",
+  "one_time": true,
+  "requirements": {
+     "discoveries": ["service_old_web_service"] 
+  }
+}

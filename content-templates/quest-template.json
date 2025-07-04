@@ -1,0 +1,61 @@
+{
+  "id": "your_quest_id_here",
+  "title": "Your Quest Title",
+  "description": "Brief one-sentence description of the quest objective",
+  "tier": 1,
+  "prerequisites": [
+    "previous_quest_id_if_any"
+  ],
+  "objectives": [
+    "Primary objective - what the player must accomplish",
+    "Secondary objective - additional tasks",
+    "Investigation goal - what they should discover"
+  ],
+  "rewards": {
+    "xp": 100,
+    "discoveries": [
+      "discovery_id_unlocked_by_this_quest"
+    ],
+    "narrative": "What this quest reveals about The Architect or the mystery",
+    "commands": [
+      "new_command_unlocked"
+    ]
+  },
+  "hints": [
+    "Helpful hint about where to start",
+    "Technical clue about tools to use",
+    "Narrative hint about The Architect's methods"
+  ],
+  "validation": {
+    "type": "command|file|discovery|custom",
+    "criteria": {
+      "command": "specific_command_to_run",
+      "file": "/path/to/file/to/find",
+      "discovery": "discovery_id_to_unlock",
+      "custom": "custom_validation_function"
+    }
+  },
+  "failure_conditions": [
+    {
+      "condition": "destructive_command_used",
+      "message": "The Architect would not approve of such reckless methods",
+      "penalty": "educational_moment"
+    }
+  ],
+  "metadata": {
+    "author": "your_github_username",
+    "difficulty": "beginner|intermediate|advanced",
+    "estimated_time": "5-10 minutes",
+    "learning_focus": [
+      "linux_commands",
+      "network_analysis", 
+      "log_investigation",
+      "file_permissions"
+    ],
+    "real_world_skills": [
+      "System monitoring",
+      "Security analysis",
+      "Troubleshooting"
+    ]
+  }
+}
