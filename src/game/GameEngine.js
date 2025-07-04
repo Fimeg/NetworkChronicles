@@ -907,25 +907,36 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
   }
 
   checkForEducationalMoment(command) {
+    // Check if user is forcing dangerous command execution
+    if (command.includes('--force-dangerous')) {
+      return null // Skip all educational checks
+    }
+    
     // Check if the command might be dangerous
     const dangerousPatterns = Object.keys(this.dangerousCommands)
     const matchedPattern = dangerousPatterns.find(pattern => {
-      return command.toLowerCase().includes(pattern.toLowerCase())
+      const cleanCommand = command.replace('--force-dangerous', '').trim()
+      return cleanCommand.toLowerCase().includes(pattern.toLowerCase())
     })
     
     if (matchedPattern) {
       const danger = this.dangerousCommands[matchedPattern]
       
-      // For high severity commands, trigger embarrassing consequences
+      // For high severity commands, trigger educational warning
       if (danger.severity === 'high') {
-        return this.triggerEmbarrassingConsequence(danger.consequence, danger.narrative)
+        return {
+          type: 'error',
+          output: `${danger.warning}\n\n${danger.narrative}\n\n💡 TIP: Research safer alternatives or add '--force-dangerous' to bypass this warning.\n🎓 This is an educational safety check - learn before you break!`,
+          xpGained: 5
+        }
       }
       
-      // For medium/low severity, just show a warning
+      // For medium/low severity, just show a warning but allow execution
       return {
         type: 'warning',
-        output: `${danger.warning}\n${danger.narrative}`,
-        xpGained: 0
+        output: `⚠️  ${danger.warning}\n${danger.narrative}\nCommand will proceed normally...`,
+        xpGained: 2,
+        continueExecution: true
       }
     }
     
@@ -935,8 +946,19 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
   async executeCommand(command) {
     // Check for educational moments first
     const educationalCheck = this.checkForEducationalMoment(command)
-    if (educationalCheck && educationalCheck.type === 'embarrassment') {
-      return educationalCheck
+    if (educationalCheck) {
+      // If it's a high-severity warning, block execution
+      if (educationalCheck.type === 'error') {
+        return educationalCheck
+      }
+      // For warnings, show the message but continue if continueExecution is true
+      if (educationalCheck.continueExecution) {
+        // We'll show the warning and continue with the command
+        // Store the warning to show after command execution
+        this.pendingWarning = educationalCheck
+      } else {
+        return educationalCheck
+      }
     }
     
     const parts = command.trim().split(' ')
