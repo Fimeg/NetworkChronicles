@@ -6173,14 +6173,14 @@ Insufficient investigation progress. Complete corporate conspiracy exposure firs
       const task = matchedTasks[0]
       task.completed = true
       this.shiftStatus.tasksCompleted++
-      this.shiftStatus.dailyXP += task.xp
-      this.player.xp += task.xp
+      this.shiftStatus.dailyXP += task.xpReward
+      this.player.xp += task.xpReward
 
       return {
         taskCompleted: true,
         task: task,
-        xpGained: task.xp,
-        message: `✅ Task Complete: ${task.title} (+${task.xp} XP)`
+        xpGained: task.xpReward,
+        message: `✅ Task Complete: ${task.title} (+${task.xpReward} XP)`
       }
     }
 
