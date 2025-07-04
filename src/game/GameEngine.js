@@ -5415,6 +5415,7 @@ Subcommands:
 ║                                                                              ║
 ║ 💡 USAGE:                                                                   ║
 ║ • 'nc-journal list' - Show all entries                                     ║
+║ • 'nc-journal 1' - Read specific entry by number                            ║
 ║ • 'nc-journal evidence' - Show collected evidence                           ║
 ║ • 'nc-journal leads' - Show active investigation leads                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -5426,6 +5427,12 @@ Subcommands:
 
     const subcommand = args[0].toLowerCase()
     
+    // Check if it's a number (reading specific entry)
+    const entryNumber = parseInt(subcommand)
+    if (!isNaN(entryNumber) && entryNumber > 0) {
+      return this.showJournalEntry(entryNumber)
+    }
+    
     switch (subcommand) {
       case 'list':
         return this.showAllJournalEntries()
@@ -5435,10 +5442,66 @@ Subcommands:
         return this.showActiveLeads()
       default:
         return {
-          output: `Unknown journal command: ${subcommand}\n\nAvailable: list, evidence, leads`,
+          output: `Unknown journal command: ${subcommand}\n\nAvailable: list, evidence, leads, or entry number (e.g., nc-journal 1)`,
           type: 'error'
         }
     }
+  }
+
+  showJournalEntry(entryNumber) {
+    const entries = Array.from(this.investigationJournal.values())
+      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+    
+    if (entryNumber > entries.length) {
+      return {
+        output: `❌ Entry ${entryNumber} does not exist. You have ${entries.length} journal entries.\n\nUse 'nc-journal list' to see all entries.`,
+        type: 'error'
+      }
+    }
+    
+    const entry = entries[entryNumber - 1]
+    const timestamp = new Date(entry.timestamp).toLocaleString()
+    
+    let output = `
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       📖 JOURNAL ENTRY #${entryNumber.toString().padStart(2)}                           ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ TITLE: ${entry.title.padEnd(71)} ║
+║ DATE: ${timestamp.padEnd(72)} ║
+║ CATEGORY: ${entry.category.padEnd(68)} ║
+╠══════════════════════════════════════════════════════════════════════════════╣`
+
+    // Format the content with proper line wrapping
+    const contentLines = entry.content.split('\n')
+    contentLines.forEach(line => {
+      if (line.trim()) {
+        // Split long lines to fit in the box
+        const words = line.trim().split(' ')
+        let currentLine = '║ '
+        
+        words.forEach(word => {
+          if (currentLine.length + word.length + 1 <= 78) {
+            currentLine += (currentLine === '║ ' ? '' : ' ') + word
+          } else {
+            output += `\n${currentLine.padEnd(78)} ║`
+            currentLine = '║ ' + word
+          }
+        })
+        
+        if (currentLine !== '║ ') {
+          output += `\n${currentLine.padEnd(78)} ║`
+        }
+      } else {
+        output += `\n║${' '.repeat(76)}║`
+      }
+    })
+
+    output += `
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📝 Entry ${entryNumber} of ${entries.length}. Use 'nc-journal list' to see all entries.`
+
+    return { output, type: 'info' }
   }
 
   // Show command reference (man pages)
