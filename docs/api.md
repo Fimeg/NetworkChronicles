@@ -732,7 +732,7 @@ Official client libraries are available for:
 - **JavaScript/Node.js**: `@network-chronicles/api-client`
 - **Python**: `network-chronicles-api`
 - **Ruby**: `network_chronicles_api`
-- **Go**: `github.com/network-chronicles/api-client-go`
+- **Go**: `github.com/Fimeg/NetworkChronicles/api-client-go`
 
 ### JavaScript Example
 
@@ -874,5 +874,5 @@ nc-logs api
 
 - **API Reference**: [https://network-chronicles.example.com/api-reference](https://network-chronicles.example.com/api-reference)
 - **Developer Forum**: [https://community.network-chronicles.example.com/developers](https://community.network-chronicles.example.com/developers)
-- **GitHub Repository**: [https://github.com/network-chronicles/api](https://github.com/network-chronicles/api)
-- **Issue Tracker**: [https://github.com/network-chronicles/api/issues](https://github.com/network-chronicles/api/issues)
+- **GitHub Repository**: [https://github.com/Fimeg/NetworkChronicles/api](https://github.com/Fimeg/NetworkChronicles/api)
+- **Issue Tracker**: [https://github.com/Fimeg/NetworkChronicles/api/issues](https://github.com/Fimeg/NetworkChronicles/api/issues)

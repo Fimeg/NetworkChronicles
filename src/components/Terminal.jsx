@@ -447,7 +447,7 @@ function Terminal({ gameEngine, player, setPlayer }) {
   return (
     <div className="terminal">
       <div className="terminal-header">
-        <div className="terminal-title">Network Chronicles V5 - Linux Learning Terminal</div>
+        <div className="terminal-title">Network Chronicles 2.0 - Linux Learning Terminal</div>
         <div className="terminal-controls">
           <div className="terminal-control control-close"></div>
           <div className="terminal-control control-minimize"></div>

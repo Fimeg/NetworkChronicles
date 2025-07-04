@@ -40,30 +40,44 @@ Players assume the role of a new system administrator tasked with maintaining a 
 
 ### System Requirements
 
-- Linux or macOS
-- Bash or Zsh shell
-- jq (JSON processor)
-- Node.js (optional, for advanced features)
+- Linux, macOS, or Windows
+- Node.js 16+ and npm
+- Git
+- Modern web browser (Chrome 90+, Firefox 88+, Safari 14+)
 
 ### Quick Install
 
-For a standard installation:
+**Local Development Installation:**
 
 ```bash
-curl -sSL https://network-chronicles.example.com/install.sh | bash
+# Clone the repository
+git clone https://github.com/Fimeg/NetworkChronicles.git
+cd NetworkChronicles
+
+# Install dependencies
+npm install
+
+# Build the application
+npm run build
+
+# Start the server
+npm run serve
 ```
 
-For a user-space installation (no root required):
+**Or use the install script:**
 
 ```bash
-curl -sSL https://network-chronicles.example.com/install-user.sh | bash
+# Download and run the installer
+wget https://github.com/Fimeg/NetworkChronicles/raw/main/install.sh
+chmod +x install.sh
+./install.sh
 ```
 
 ### Docker Installation
 
 ```bash
-git clone https://github.com/network-chronicles/network-chronicles.git
-cd network-chronicles
+git clone https://github.com/Fimeg/NetworkChronicles.git
+cd NetworkChronicles
 docker-compose up -d
 ```
 

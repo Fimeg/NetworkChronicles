@@ -62,7 +62,7 @@ Network Chronicles 2.0 is a **complete rewrite** and is **not compatible** with 
 2. **Install v2.0 fresh**:
    ```bash
    # Clone the new version
-   git clone https://github.com/network-chronicles/network-chronicles.git
+   git clone https://github.com/Fimeg/NetworkChronicles.git
    cd network-chronicles
    
    # Install dependencies and build
@@ -85,7 +85,7 @@ Network Chronicles 2.0 is a **complete rewrite** and is **not compatible** with 
    ```bash
    mkdir ~/network-chronicles-2.0
    cd ~/network-chronicles-2.0
-   git clone https://github.com/network-chronicles/network-chronicles.git .
+   git clone https://github.com/Fimeg/NetworkChronicles.git .
    npm install && npm run build
    ```
 
@@ -101,7 +101,7 @@ Network Chronicles 2.0 is a **complete rewrite** and is **not compatible** with 
 1. **Backup existing data** (same as Path 1)
 2. **Use Docker Compose**:
    ```bash
-   git clone https://github.com/network-chronicles/network-chronicles.git
+   git clone https://github.com/Fimeg/NetworkChronicles.git
    cd network-chronicles
    docker-compose up -d
    ```

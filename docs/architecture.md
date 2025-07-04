@@ -1,275 +1,199 @@
-# Network Chronicles: System Architecture
+# Network Chronicles 2.0: System Architecture
 
-This document outlines the architecture of the Network Chronicles system, explaining how the various components work together to create an immersive gamified documentation experience.
+This document outlines the architecture of Network Chronicles 2.0, a React-based web application that provides an interactive Linux learning terminal experience.
 
 ## System Overview
 
-Network Chronicles is built with a modular architecture that separates game mechanics, content, and user interface components. This design allows for flexibility in deployment, content creation, and integration with real infrastructure.
-
-![Architecture Overview](../assets/images/architecture-diagram.png)
+Network Chronicles 2.0 is built with a modern web architecture that separates game logic, user interface, and content management. This design allows for better user experience, easier content creation, and simplified deployment.
 
 ## Core Components
 
-### 1. Game Engine
+### 1. React Frontend (`/src/`)
 
-The game engine is the central component that manages player state, story progression, and game mechanics. It's responsible for:
-
-- Tracking player progress and state
-- Processing commands and triggering events
-- Managing the discovery system
-- Handling quests and challenges
-- Coordinating between other components
+The frontend is a React application that provides an authentic terminal experience in the browser:
 
 **Key Files:**
-- `bin/network-chronicles-engine.sh`: Main engine script
-- `src/engine/state-manager.js`: Player state management
-- `src/engine/event-system.js`: Event handling system
-- `src/engine/discovery-manager.js`: Discovery tracking
+- `src/App.jsx`: Main application component
+- `src/components/Terminal.jsx`: Terminal emulator with command processing
+- `src/components/GettingStartedPopup.jsx`: Onboarding experience
+- `src/components/QuestPanel.jsx`: Quest management interface
+- `src/components/SplashScreen.jsx`: Loading screen experience
 
-### 2. Shell Integration
+**Features:**
+- CRT terminal effects and authentic Linux terminal feel
+- Command syntax highlighting
+- Tab completion and command history
+- Real-time system integration
 
-The shell integration component provides a seamless interface between the player's terminal and the game engine. It:
+### 2. Game Engine (`/src/game/`)
 
-- Intercepts and processes terminal commands
-- Augments the command prompt with game information
-- Provides game-specific commands
-- Displays notifications and updates
-
-**Key Files:**
-- `bin/nc-shell-integration.sh`: Shell integration script
-- `src/ui/prompt-customizer.js`: Command prompt customization
-- `src/ui/notification-manager.js`: In-terminal notifications
-
-### 3. Journal System
-
-The journal system provides an interactive documentation interface that evolves with player progress. It:
-
-- Displays and manages journal entries
-- Organizes discovered documentation
-- Provides a network map visualization
-- Tracks inventory and achievements
+The game engine manages all game logic, state, and narrative progression:
 
 **Key Files:**
-- `bin/journal.sh`: Journal interface script
-- `src/ui/journal-renderer.js`: Journal display system
-- `src/ui/map-generator.js`: Network map visualization
+- `src/game/GameEngine.js`: Core game logic and command processing
+- `src/game/SystemIntegration.js`: Real system integration and service discovery
 
-### 4. Content Management
+**Responsibilities:**
+- Player state management (XP, level, progress)
+- Quest system and narrative progression
+- Command execution and validation
+- Discovery system and learning tracking
+- Educational failure system with consequences
 
-The content management system handles all game content, including narrative elements, challenges, and discoveries. It:
+### 3. Content System (`/content/`)
 
-- Loads and manages story content
-- Provides challenge definitions
-- Defines discoverable elements
-- Manages event triggers
+A JSON-based content management system that stores all game content:
 
-**Key Files:**
-- `src/engine/content-loader.js`: Content loading system
-- `content/narrative/quests/`: Quest definitions
-- `content/challenges/`: Challenge implementations
-- `content/discoveries/`: Discoverable elements
+**Structure:**
+```
+content/
+├── artifacts/           # Hidden messages and discoveries
+├── challenges/          # Shell scripts for challenges
+├── discoveries/         # Discovery definitions and rewards
+├── events/             # Event scripts and triggers
+├── narrative/          # Story content and quests
+├── templates/          # Service templates
+└── triggers/           # Event trigger definitions
+```
 
-### 5. Infrastructure Integration
+**Key Features:**
+- Modular content system for easy contribution
+- JSON-based configuration for non-technical contributors
+- Validation scripts for content quality
+- Extensible service discovery templates
 
-The infrastructure integration component connects the game with real network infrastructure. It:
+### 4. Express Backend (`/server.js`)
 
-- Discovers and maps real network components
-- Integrates real system logs with game narrative
-- Adapts game content based on actual infrastructure
-- Provides hooks for custom infrastructure integration
+A lightweight Node.js backend that serves the application and handles API requests:
 
-**Key Files:**
-- `bin/discover-infrastructure.sh`: Infrastructure discovery script
-- `src/engine/infrastructure-adapter.js`: Integration adapter
-- `config/infrastructure.json`: Infrastructure configuration
+**Responsibilities:**
+- Static file serving
+- WebSocket support for real-time features
+- Health check endpoints
+- CORS configuration for development
+
+### 5. Build System
+
+**Tools:**
+- **Vite**: Fast build tool and development server
+- **React**: Component-based UI framework
+- **CSS**: Custom styling with CRT effects and terminal themes
+
+**Scripts:**
+- `npm run dev`: Development server with hot reloading
+- `npm run build`: Production build
+- `npm run serve`: Production server
 
 ## Data Flow
 
-1. **Command Processing Flow:**
-   ```
-   User Command → Shell Integration → Game Engine → Event System → Player State Update → UI Update
-   ```
+1. **User Input**: Commands entered in the terminal component
+2. **Game Engine**: Processes commands and updates game state
+3. **Content System**: Provides quest data, discoveries, and narrative
+4. **UI Update**: React re-renders based on state changes
+5. **System Integration**: Real-time service discovery and network analysis
 
-2. **Discovery Flow:**
-   ```
-   User Command → Shell Integration → Game Engine → Discovery Check → Content Unlocked → Player State Update → Journal Update
-   ```
+## Deployment Architecture
 
-3. **Quest Progression Flow:**
-   ```
-   Discovery → Quest Check → Quest Update → New Content Unlocked → Notification → Journal Update
-   ```
-
-## State Management
-
-Player state is stored in JSON format and includes:
-
-- Basic player information (ID, creation date, playtime)
-- Progress metrics (tier, XP, skill points)
-- Game state (quests, discoveries, achievements)
-- Inventory and documentation
-
-Example player state:
-
-```json
-{
-  "player_id": "username",
-  "created_at": "2025-03-01T12:00:00Z",
-  "last_login": "2025-03-03T08:30:00Z",
-  "playtime": 7200,
-  "tier": 2,
-  "xp": 1500,
-  "skill_points": {
-    "networking": 3,
-    "security": 2,
-    "systems": 1,
-    "devops": 0
-  },
-  "current_quests": ["map_network_services"],
-  "completed_quests": ["initial_access", "discover_gateway"],
-  "discoveries": ["gateway", "firewall", "web_server"],
-  "inventory": ["basic_terminal", "network_scanner", "admin_credentials"],
-  "achievements": ["digital_archaeologist"],
-  "story_flags": {
-    "met_architect_ai": true,
-    "discovered_breach": false
-  }
-}
+### Development Mode
+```
+[Browser] ← → [Vite Dev Server] ← → [React App] ← → [Game Engine]
+                                         ↓
+                                   [Content System]
 ```
 
-## Event System
-
-The event system uses a trigger-based approach:
-
-1. **Triggers** are defined in JSON files that specify patterns to match against user commands
-2. **Event Handlers** are shell scripts that execute when triggers are activated
-3. **Notifications** are generated by event handlers to inform the player
-4. **State Updates** are performed by event handlers to progress the game
-
-Example trigger:
-
-```json
-{
-  "pattern": ".*cat.*\\/var\\/log\\/auth\\.log.*|.*grep.*auth\\.log.*",
-  "event": "discovered_auth_logs",
-  "one_time": true
-}
+### Production Mode
+```
+[Browser] ← → [Express Server] ← → [Built React App] ← → [Game Engine]
+                                         ↓
+                                   [Content System]
 ```
 
-Example event handler:
-
-```bash
-#!/bin/bash
-# discovered_auth_logs.sh
-PLAYER_ID="$1"
-PLAYER_STATE="${GAME_ROOT}/data/players/${PLAYER_ID}"
-
-# Update player state
-tmp=$(mktemp)
-jq '.discoveries += ["auth_logs"] | .xp += 30' "${PLAYER_STATE}/profile.json" > "$tmp" && mv "$tmp" "${PLAYER_STATE}/profile.json"
-
-# Add notification
-echo -e "\n[DISCOVERY] You found the authentication logs! (+30 XP)"
-echo -e "These logs contain records of login attempts and may provide clues about The Architect's disappearance.\n"
-
-# Add journal entry
-cat > "${PLAYER_STATE}/journal/$(date +%Y-%m-%d)_auth_logs.md" << 'EOJ'
-# Discovery: Authentication Logs
-
-I've found the system authentication logs at `/var/log/auth.log`. These logs contain records of all login attempts to the system.
-
-Looking through the logs, I noticed some suspicious failed login attempts from an external IP address shortly before The Architect's last login. This might be related to their disappearance.
-
-I should investigate these IP addresses further and check for other suspicious activity in the logs.
-EOJ
-
-# Check for quest updates
-"${GAME_ROOT}/bin/network-chronicles-engine.sh" process "check_quest_updates"
+### Docker Deployment
+```
+[Docker Container: Node.js Alpine]
+├── [Express Server]
+├── [Built React App]
+├── [Game Engine]
+└── [Content System]
 ```
 
-## Extension Points
+## Security Architecture
 
-Network Chronicles is designed to be extensible in several ways:
+### Content Security
+- All content is JSON-based and validated
+- No arbitrary code execution from content files
+- Sanitized HTML output in terminal
 
-### 1. Custom Challenges
+### System Integration
+- Read-only system integration by default
+- No modification of system files
+- Educational failure system instead of blocking
 
-Create new challenges by adding files to the `content/challenges/` directory. Challenges can be:
+### Web Security
+- CORS configuration for appropriate origins
+- No sensitive data exposure
+- Client-side state management only
 
-- Puzzle-based (cryptography, log analysis)
-- Task-based (system configuration, network mapping)
-- Time-sensitive (incident response scenarios)
+## Extensibility
 
-### 2. Custom Narrative
+### Adding New Content
+1. Create JSON files in appropriate content directories
+2. Use validation scripts to ensure content quality
+3. Test through the game interface
 
-Extend the story by adding new quests, messages, and artifacts to the `content/narrative/` directory. The narrative system supports:
+### Adding New Features
+1. Extend GameEngine.js for new game mechanics
+2. Add React components for new UI elements
+3. Update content templates as needed
 
-- Branching storylines
-- Character development
-- Side quests
-- Multiple endings
-
-### 3. Infrastructure Integration
-
-Customize infrastructure integration by modifying:
-
-- `config/infrastructure.json`: Define your network structure
-- `bin/discover-infrastructure.sh`: Customize discovery logic
-- `src/engine/infrastructure-adapter.js`: Adapt to specific environments
-
-### 4. UI Customization
-
-Customize the user interface by modifying:
-
-- `bin/nc-shell-integration.sh`: Change terminal integration
-- `bin/journal.sh`: Modify journal interface
-- `src/ui/`: Update UI components
-
-## Security Considerations
-
-Network Chronicles is designed with security in mind:
-
-1. **Privilege Separation**: The game engine runs with user privileges, while infrastructure integration may require elevated privileges.
-
-2. **Sandboxing**: Challenges and events are executed in a controlled environment to prevent unintended system modifications.
-
-3. **Configuration Validation**: All user-provided configuration is validated before use to prevent injection attacks.
-
-4. **Secure Defaults**: Default configurations are secure and require explicit opt-in for features that may have security implications.
+### Service Integration
+1. Add service templates in `/content/templates/services/`
+2. Create corresponding discovery definitions
+3. Update SystemIntegration.js for detection logic
 
 ## Performance Considerations
 
-To ensure good performance, Network Chronicles:
+### Frontend Performance
+- Component memoization for expensive operations
+- Virtualized scrolling for long terminal output
+- Efficient state management to minimize re-renders
 
-1. **Minimizes Command Interception Overhead**: Shell integration is designed to have minimal impact on terminal performance.
+### Backend Performance
+- Lightweight Express server with minimal middleware
+- Static file serving with appropriate caching headers
+- WebSocket connections for real-time features
 
-2. **Uses Background Processing**: Long-running tasks are executed in the background to keep the UI responsive.
+### Content Loading
+- Lazy loading of content based on player progress
+- JSON parsing optimization
+- Efficient quest and discovery lookup
 
-3. **Implements Caching**: Frequently accessed content is cached to reduce load times.
+## Monitoring and Debugging
 
-4. **Provides Configuration Options**: Performance-sensitive features can be tuned or disabled based on system capabilities.
+### Development Tools
+- React DevTools for component inspection
+- Browser console for game state debugging
+- Network tab for API request monitoring
 
-## Deployment Scenarios
+### Production Monitoring
+- Health check endpoint at `/health`
+- Error boundaries for graceful error handling
+- Logging for game progression and errors
 
-Network Chronicles supports various deployment scenarios:
+## Migration from v1.x
 
-1. **Single-User Development Environment**: Install in user space for personal use.
+Network Chronicles 2.0 represents a complete architectural rewrite:
 
-2. **Multi-User Home Lab**: Install system-wide with multi-user support for shared learning.
+- **v1.x**: Shell script-based with terminal integration
+- **v2.0**: React web application with terminal emulation
 
-3. **Enterprise Training Environment**: Deploy in a containerized environment for standardized training.
+Key improvements:
+- Better user experience with modern web technologies
+- Easier content contribution through JSON templates
+- Enhanced narrative with cyberpunk mystery elements
+- Cross-platform compatibility through web browsers
+- Simplified deployment with Docker support
 
-4. **Integrated Production Environment**: Integrate with actual production infrastructure for on-the-job training.
+---
 
-## Future Architecture Directions
-
-Planned architectural improvements include:
-
-1. **Web Interface**: A complementary web UI for enhanced visualization and remote access.
-
-2. **API Layer**: A formal API for third-party integrations and extensions.
-
-3. **Plugin System**: A structured plugin system for community-contributed content.
-
-4. **Cloud Integration**: Native integration with cloud infrastructure providers.
-
-5. **Machine Learning**: Adaptive difficulty and personalized content based on player behavior.
+This architecture provides a solid foundation for the Network Chronicles 2.0 learning experience while maintaining flexibility for future enhancements and community contributions.
