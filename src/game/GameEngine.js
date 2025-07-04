@@ -360,7 +360,7 @@ class GameEngine {
         severity: 'high',
         consequence: 'security_breach',
         warning: '[SEC] CRITICAL: Brute force attack detected!',
-        narrative: 'The authentication systems lock down - this isn\\'t the way The Architect would want you to proceed.'
+        narrative: 'The authentication systems lock down - this isn\'t the way The Architect would want you to proceed.'
       },
       
       // File system corruption
