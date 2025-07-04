@@ -366,6 +366,36 @@
   font-weight: bold;
 }
 
+/* Clock-in Status Indicators */
+.status-on {
+  color: #00d4aa;
+  font-weight: bold;
+  animation: pulse-glow 2s infinite;
+}
+
+.status-off {
+  color: #ff6b6b;
+  font-weight: bold;
+  animation: subtle-blink 3s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    text-shadow: 0 0 5px rgba(0, 212, 170, 0.5);
+    opacity: 1;
+  }
+  50% { 
+    text-shadow: 0 0 10px rgba(0, 212, 170, 0.8);
+    opacity: 0.9;
+  }
+}
+
+@keyframes subtle-blink {
+  0%, 85% { opacity: 1; }
+  90%, 95% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
 /* Progress Bar */
 .progress-bar {
   width: 100px;

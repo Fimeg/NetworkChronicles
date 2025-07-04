@@ -66,9 +66,22 @@ function Terminal({ gameEngine, player, setPlayer }) {
 
       // Check if getting started guide has been shown
       const hasSeenGettingStarted = localStorage.getItem('nc-getting-started-seen')
-      if (!hasSeenGettingStarted) {
-        // Show popup after a short delay
-        setTimeout(() => setShowGettingStarted(true), 1000)
+      const installTimestamp = localStorage.getItem('nc-install-timestamp')
+      const sessionFirstRun = sessionStorage.getItem('nc-session-first-run')
+      const now = Date.now()
+      
+      // Force popup for new installations (within 10 minutes), first session, or if never seen
+      const isNewInstall = !installTimestamp || (now - parseInt(installTimestamp)) < 600000
+      const isFirstSession = !sessionFirstRun
+      
+      if (!hasSeenGettingStarted || isNewInstall || isFirstSession) {
+        if (!installTimestamp) {
+          localStorage.setItem('nc-install-timestamp', now.toString())
+        }
+        if (!sessionFirstRun) {
+          sessionStorage.setItem('nc-session-first-run', 'true')
+        }
+        setTimeout(() => setShowGettingStarted(true), 1500)
       }
     }
   }, [gameEngine, player])
@@ -228,7 +241,22 @@ function Terminal({ gameEngine, player, setPlayer }) {
       
       // Handle clear command specially
       if (result.type === 'clear') {
-        setOutput([])
+        if (result.showWelcome) {
+          // Show welcome message and shift status after clear
+          const welcomeMessage = gameEngine.getWelcomeMessage()
+          const shiftStatus = gameEngine.getShiftStatus()
+          const currentTime = new Date().toLocaleString()
+          
+          setOutput([
+            { type: 'system', content: `[${currentTime}] Terminal cleared` },
+            { type: 'system', content: welcomeMessage },
+            { type: 'alert', content: shiftStatus.clockedIn ? 
+              `[*] SHIFT ACTIVE: ${shiftStatus.currentShift} | Tasks: ${shiftStatus.tasksCompleted}/4 | Daily XP: ${shiftStatus.dailyXP}` :
+              '[!] SHIFT REQUIRED: You must clock in to begin your duties. Use "nc-clock-in" to start your shift.' }
+          ])
+        } else {
+          setOutput([])
+        }
         return
       }
       
@@ -251,7 +279,11 @@ function Terminal({ gameEngine, player, setPlayer }) {
         setPlayer(gameEngine.getPlayer())
       }
 
-      // Quest updates are now handled in separate panel component
+      // Force quest panel update when quest completes
+      if (result.questUpdate) {
+        // Force re-render by updating a dummy state
+        setLastActivity(Date.now())
+      }
 
       if (result.shiftUpdate) {
         const shiftStatus = gameEngine.getShiftStatus()
@@ -497,7 +529,9 @@ function Terminal({ gameEngine, player, setPlayer }) {
           </div>
           <div className="status-item">
             <span className="status-label">Shift:</span>
-            <span className="status-value">{gameEngine.getShiftStatus().clockedIn ? '[ON]' : '[OFF]'}</span>
+            <span className={`status-value ${gameEngine.getShiftStatus().clockedIn ? 'status-on' : 'status-off'}`}>
+              {gameEngine.getShiftStatus().clockedIn ? '[ON]' : '[OFF - nc-clock-in to start]'}
+            </span>
           </div>
           <div className="status-item">
             <span className="status-label">Tasks:</span>

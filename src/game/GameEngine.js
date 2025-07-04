@@ -861,12 +861,18 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
   }
 
   getCurrentQuest() {
-    if (this.currentQuestIndex >= this.quests.length) {
-      return this.generateInvestigationGuidance()
+    // Find the next uncompleted quest
+    for (let i = 0; i < this.quests.length; i++) {
+      const quest = this.quests[i]
+      if (!quest.completed && this.canPlayerDoQuest(quest)) {
+        this.currentQuestIndex = i  // Update current quest index
+        return `Quest: ${quest.title}\n${quest.description}\nObjective: ${quest.objective}\nReward: ${quest.xpReward} XP`
+      }
     }
 
-    const quest = this.quests[this.currentQuestIndex]
-    return `Quest: ${quest.title}\n${quest.description}\nObjective: ${quest.objective}\nReward: ${quest.xpReward} XP`
+    // All quests completed - show investigation guidance
+    this.currentQuestIndex = this.quests.length
+    return this.generateInvestigationGuidance()
   }
 
   generateInvestigationGuidance() {
@@ -904,6 +910,25 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 🎯 The real mystery begins now. What will you discover?`
+  }
+
+  checkShiftRequirement(command) {
+    // Commands that require being clocked in
+    const shiftRequiredCommands = [
+      'nc-discover-services', 'nc-map-network', 'nc-security-scan', 
+      'nc-monitor-system', 'nc-analyze-network', 'nc-daily-tasks',
+      'nc-complete-task', 'nc-incident-response', 'nc-scan-ports'
+    ]
+    
+    if (shiftRequiredCommands.includes(command) && !this.shiftStatus.clockedIn) {
+      return {
+        type: 'error',
+        output: '[!] SHIFT REQUIRED: You must clock in to perform work duties. Use "nc-clock-in" to start your shift.\n\n🕘 Administrative commands require active shift status for proper logging and accountability.',
+        xpGained: 0
+      }
+    }
+    
+    return null
   }
 
   checkForEducationalMoment(command) {
@@ -959,6 +984,12 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
       } else {
         return educationalCheck
       }
+    }
+
+    // Check if command requires active shift
+    const shiftCheck = this.checkShiftRequirement(command.trim().split(' ')[0])
+    if (shiftCheck) {
+      return shiftCheck
     }
     
     const parts = command.trim().split(' ')
@@ -1032,7 +1063,11 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
         return this.handlePing(args)
       
       case 'clear':
-        return { output: '', type: 'clear' }
+        return { 
+          output: '', 
+          type: 'clear',
+          showWelcome: true  // Flag to show welcome info after clear
+        }
       
       case 'status':
         return this.showStatus()
