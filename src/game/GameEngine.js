@@ -340,7 +340,7 @@ class GameEngine {
         severity: 'high',
         consequence: 'data_loss',
         warning: '[DB] WARNING: Database destruction attempted!',
-        narrative: 'You hesitate... this database might contain The Architect\\'s final logs.'
+        narrative: 'You hesitate... this database might contain The Architect\'s final logs.'
       },
       'TRUNCATE': {
         severity: 'medium',
