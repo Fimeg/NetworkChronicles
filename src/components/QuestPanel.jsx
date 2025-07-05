@@ -16,6 +16,25 @@ function QuestPanel({ gameEngine, player }) {
     }
   }, [gameEngine, player, gameEngine?.currentQuestIndex, gameEngine?.quests, player?.xp, player?.completedQuests])
 
+  // Poll for quest updates every 2 seconds
+  useEffect(() => {
+    if (!gameEngine || !player) return
+
+    const pollInterval = setInterval(() => {
+      const quest = gameEngine.getCurrentQuest()
+      const questIndex = gameEngine.currentQuestIndex
+      const completedQuests = gameEngine.quests.filter(q => q.completed).length
+      const newQuestKey = `${questIndex}-${completedQuests}`
+      
+      if (quest !== currentQuest || questKey !== newQuestKey) {
+        setCurrentQuest(quest)
+        setQuestKey(newQuestKey)
+      }
+    }, 2000)
+
+    return () => clearInterval(pollInterval)
+  }, [gameEngine, player, currentQuest, questKey])
+
   if (!currentQuest) {
     return null
   }
