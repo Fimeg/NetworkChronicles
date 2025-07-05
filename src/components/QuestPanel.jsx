@@ -26,14 +26,15 @@ function QuestPanel({ gameEngine, player }) {
       const completedQuests = gameEngine.quests.filter(q => q.completed).length
       const newQuestKey = `${questIndex}-${completedQuests}`
       
-      if (quest !== currentQuest || questKey !== newQuestKey) {
+      // Compare quest key instead of quest content to avoid string comparison issues
+      if (questKey !== newQuestKey) {
         setCurrentQuest(quest)
         setQuestKey(newQuestKey)
       }
     }, 2000)
 
     return () => clearInterval(pollInterval)
-  }, [gameEngine, player, currentQuest, questKey])
+  }, [gameEngine, player, questKey])
 
   if (!currentQuest) {
     return null

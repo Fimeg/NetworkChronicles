@@ -132,6 +132,10 @@
 .terminal-prompt.status-advanced { color: #00d4aa; }
 .terminal-prompt.status-clocked-out { color: #636e72; }
 .terminal-prompt.status-error { color: #ff6b6b; }
+.terminal-prompt.status-locked { 
+  color: #ff6b6b; 
+  animation: lock-pulse 2s infinite;
+}
 
 .terminal-input {
   flex: 1;
@@ -146,6 +150,28 @@
 
 .terminal-input:focus {
   animation: cursor-blink 1s infinite;
+}
+
+.terminal-input.input-locked {
+  color: #ff6b6b;
+  opacity: 0.7;
+}
+
+.lock-countdown {
+  color: #f9ca24;
+  font-size: 12px;
+  margin-left: 12px;
+  animation: countdown-pulse 1s infinite;
+}
+
+@keyframes lock-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes countdown-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(0.95); }
 }
 
 @keyframes cursor-blink {
@@ -570,9 +596,13 @@
   background: rgba(10, 14, 20, 0.95);
   border: 2px solid #2a3441;
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(0, 212, 170, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
+  backdrop-filter: blur(5px);
 }
 
 .quest-panel-header {
@@ -602,13 +632,44 @@
   padding: 12px;
   flex: 1;
   overflow-y: auto;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(0, 212, 170, 0.2);
 }
 
 .quest-content {
   color: #f0f6fc;
   font-size: 12px;
-  line-height: 1.4;
+  line-height: 1.5;
   white-space: pre-wrap;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border-left: 3px solid #00d4aa;
+  margin-bottom: 8px;
+}
+
+.quest-content:last-child {
+  margin-bottom: 0;
+}
+
+/* Quest content syntax highlighting */
+.quest-content .quest-title {
+  color: #00d4aa;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.quest-content .quest-objective {
+  color: #f9ca24;
+  font-weight: bold;
+  margin: 4px 0;
+}
+
+.quest-content .quest-reward {
+  color: #74b9ff;
+  font-style: italic;
 }
 
 /* Getting Started Popup */

@@ -267,9 +267,9 @@ function Terminal({ gameEngine, player, setPlayer }) {
 
       if (result.xpGained && result.xpGained > 0) {
         if (result.xpGained >= 50) {
-          showCelebration(`MAJOR DISCOVERY!\n+${result.xpGained} XP`)
+          showCelebration(`SIGNIFICANT DISCOVERY!\nManagement is... fascinated.\n+${result.xpGained} XP`)
         } else if (result.xpGained >= 25) {
-          showCelebration(`EXCELLENT WORK!\n+${result.xpGained} XP`)
+          showCelebration(`IMPRESSIVE THOROUGHNESS!\nYour curiosity levels are noted.\n+${result.xpGained} XP`)
         } else {
           showNotification(`+${result.xpGained} XP`)
         }

@@ -44,7 +44,7 @@ class GameEngine {
     this.systemIntegration = new SystemIntegration()
     this.dailyTasks = []
     this.lastTaskRefresh = null
-    this.shiftStatus = {
+    this.shiftStatus = this.loadShiftStatus() || {
       clockedIn: false,
       shiftStart: null,
       tasksCompleted: 0,
@@ -70,7 +70,7 @@ class GameEngine {
     this.evidenceLog = []
     this.initializeStoryElements()
     this.hiddenTerminals = new Map()
-    this.discoveredCommands = new Set(['help', 'clear', 'pwd', 'ls', 'cd', 'cat', 'ps', 'netstat', 'nc-status', 'nc-help'])
+    this.discoveredCommands = new Set(['help', 'clear', 'pwd', 'ls', 'cd', 'cat', 'ps', 'netstat', 'nc-status', 'nc-help', 'history', 'journal'])
     this.architectTerminalAccess = false
     this.initializeHiddenSystems()
     this.commandPatterns = new Map() // Track command usage patterns for discovery triggers
@@ -89,6 +89,7 @@ class GameEngine {
       investigationNotes: [],
       lastCaution: null
     }
+    this.commandHistory = []
     this.initializeEducationalSystem()
   }
 
@@ -834,6 +835,168 @@ Note: All references will start with "Well, they sure were sorry about things...
         skillTrack: 'systems',
         prerequisites: ['process_discovery'],
         completed: false
+      },
+      {
+        id: 'discover_network_segments',
+        title: 'Network Segmentation Analysis',
+        description: 'Map network segments and analyze traffic patterns for security boundaries',
+        objective: 'Identify network segments and their security boundaries',
+        commands: ['nc-analyze-network', 'nc-map-network'],
+        xpReward: 90,
+        tier: 2,
+        skillTrack: 'networking',
+        prerequisites: ['network_mapping'],
+        completed: false,
+        briefing: `
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    🌐 NETWORK SEGMENTATION ANALYSIS                        ║
+║                     Advanced Infrastructure Mapping                         ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ PRIORITY ASSIGNMENT:                                                         ║
+║ Management has identified unusual network traffic patterns. Your task is    ║
+║ to map network segments and identify security boundaries that may have      ║
+║ been... compromised.                                                        ║
+║                                                                              ║
+║ OBJECTIVE:                                                                   ║
+║ • Analyze network segmentation for security boundaries                      ║
+║ • Map traffic patterns between segments                                     ║
+║ • Identify potential security gaps or misconfigurations                     ║
+║ • Document findings for management review                                   ║
+║                                                                              ║
+║ CORPORATE NOTICE:                                                           ║
+║ This investigation is routine maintenance. Any unusual findings should be   ║
+║ reported immediately for... optimization purposes.                          ║
+╚══════════════════════════════════════════════════════════════════════════════╝`
+      },
+      {
+        id: 'map_service_dependencies',
+        title: 'Service Dependency Mapping',
+        description: 'Analyze service interdependencies and identify critical failure points',
+        objective: 'Map service dependencies and identify critical failure points',
+        commands: ['nc-discover-services', 'nc-map-network'],
+        xpReward: 95,
+        tier: 2,
+        skillTrack: 'systems',
+        prerequisites: ['service_discovery'],
+        completed: false,
+        briefing: `
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    🔗 SERVICE DEPENDENCY MAPPING                           ║
+║                     Critical Infrastructure Analysis                         ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ URGENT ASSIGNMENT:                                                          ║
+║ Recent system instabilities suggest complex service dependencies may be     ║
+║ creating unexpected failure cascades. Your thoroughness in mapping these    ║
+║ dependencies is... essential for system stability.                          ║
+║                                                                              ║
+║ INVESTIGATION SCOPE:                                                         ║
+║ • Map all service interdependencies                                         ║
+║ • Identify critical failure points                                          ║
+║ • Document cascade failure potential                                        ║
+║ • Analyze redundancy and backup systems                                     ║
+║                                                                              ║
+║ MANAGEMENT NOTE:                                                            ║
+║ Pay special attention to services that seem... overly isolated. Sometimes   ║
+║ what appears to be a backup system serves other purposes.                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝`
+      },
+      {
+        id: 'detect_rogue_devices',
+        title: 'Rogue Device Detection',
+        description: 'Identify unauthorized devices and potential security threats on the network',
+        objective: 'Scan for and identify rogue devices on the network',
+        commands: ['nc-scan-ports', 'nc-analyze-network'],
+        xpReward: 100,
+        tier: 2,
+        skillTrack: 'security',
+        prerequisites: ['security_assessment'],
+        completed: false,
+        briefing: `
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     🚨 ROGUE DEVICE DETECTION                              ║
+║                      Network Security Audit                                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ SECURITY ALERT:                                                             ║
+║ Network monitoring has detected anomalous device signatures. Your          ║
+║ investigation skills are required to identify potential security threats.   ║
+║ This is definitely routine maintenance. Nothing suspicious.                 ║
+║                                                                              ║
+║ DETECTION PROTOCOL:                                                         ║
+║ • Scan network for unauthorized devices                                     ║
+║ • Analyze device signatures and behaviors                                   ║
+║ • Identify potential security threats                                       ║
+║ • Document findings for... security optimization                            ║
+║                                                                              ║
+║ CORPORATE REMINDER:                                                         ║
+║ If you discover any devices that seem to be monitoring employee activity,   ║
+║ that's perfectly normal. They're for... productivity enhancement.           ║
+╚══════════════════════════════════════════════════════════════════════════════╝`
+      },
+      {
+        id: 'secure_vulnerable_services',
+        title: 'Vulnerability Remediation',
+        description: 'Secure services with identified vulnerabilities and implement proper hardening',
+        objective: 'Remediate security vulnerabilities and implement hardening measures',
+        commands: ['nc-security-scan', 'nc-monitor-system'],
+        xpReward: 105,
+        tier: 2,
+        skillTrack: 'security',
+        prerequisites: ['security_assessment'],
+        completed: false,
+        briefing: `
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                   🔒 VULNERABILITY REMEDIATION                             ║
+║                     Security Hardening Protocol                             ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ CRITICAL ASSIGNMENT:                                                        ║
+║ Previous security assessments have identified vulnerabilities requiring     ║
+║ immediate attention. Your expertise in security hardening is... vital for   ║
+║ maintaining system integrity.                                               ║
+║                                                                              ║
+║ REMEDIATION TASKS:                                                          ║
+║ • Secure identified vulnerable services                                     ║
+║ • Implement proper hardening measures                                       ║
+║ • Verify remediation effectiveness                                          ║
+║ • Document security improvements                                            ║
+║                                                                              ║
+║ SECURITY NOTICE:                                                            ║
+║ While securing systems, you may notice some monitoring tools that seem      ║
+║ intrusive. These are approved security measures. Please do not disable     ║
+║ them... for your own protection.                                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝`
+      },
+      {
+        id: 'discover_shadow_network',
+        title: 'Shadow Network Investigation',
+        description: 'Investigate hidden network infrastructure and unauthorized communication channels',
+        objective: 'Discover and analyze shadow network infrastructure',
+        commands: ['nc-map-network', 'nc-analyze-network', 'nc-scan-ports'],
+        xpReward: 120,
+        tier: 2,
+        skillTrack: 'networking',
+        prerequisites: ['network_mapping', 'detect_rogue_devices'],
+        completed: false,
+        briefing: `
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    👤 SHADOW NETWORK INVESTIGATION                         ║
+║                     Hidden Infrastructure Analysis                           ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ CLASSIFIED ASSIGNMENT:                                                      ║
+║ Advanced analysis suggests the existence of hidden network infrastructure.  ║
+║ Your investigative skills are needed to uncover these... unofficial        ║
+║ communication channels. This is sensitive work.                             ║
+║                                                                              ║
+║ INVESTIGATION SCOPE:                                                        ║
+║ • Discover hidden network infrastructure                                    ║
+║ • Map unauthorized communication channels                                   ║
+║ • Analyze traffic patterns and data flows                                   ║
+║ • Document shadow network architecture                                      ║
+║                                                                              ║
+║ EXECUTIVE WARNING:                                                          ║
+║ This investigation may reveal communications that appear to be employee     ║
+║ monitoring. This is normal corporate security infrastructure. Do not be     ║
+║ alarmed by what you find... it's for everyone's safety.                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝`
       }
     ]
 
@@ -851,12 +1014,13 @@ Note: All references will start with "Well, they sure were sorry about things...
 ║                         Linux Learning Terminal                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-Welcome, ${this.player.name}! You have been assigned as the new systems administrator
-while our senior architect is unavailable.
+Welcome, ${this.player.name}. You're replacing our previous architect who was... 
+transferred. Don't worry about the details. Focus on your assigned tasks.
 
-[!] URGENT: You must clock in for your first shift to begin your duties.
+[!] REQUIRED: Security clearance verification needed. Please confirm your identity 
+so we can properly... supervise your activities.
 
-Type 'help' for basic commands or 'nc-help' for system administration tools.
+Type 'help' for approved commands or 'nc-help' for tools we definitely want you to use.
     `
   }
 
@@ -924,7 +1088,7 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
     if (shiftRequiredCommands.includes(command) && !this.shiftStatus.clockedIn) {
       return {
         type: 'error',
-        output: '[!] SHIFT REQUIRED: You must clock in to perform work duties. Use "nc-clock-in" to start your shift.\n\n🕘 Administrative commands require active shift status for proper logging and accountability.',
+        output: '[!] ACCESS MONITORING: Security clearance required for that operation. Use "nc-clock-in" to verify your identity.\n\n🔒 All administrative activities are logged for... quality assurance purposes.',
         xpGained: 0
       }
     }
@@ -970,6 +1134,19 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
   }
 
   async executeCommand(command) {
+    // Track command history (exclude history command itself to avoid recursion)
+    if (command.trim() !== 'history') {
+      this.commandHistory.push({
+        command: command.trim(),
+        timestamp: new Date().toISOString(),
+        sessionTime: new Date().toLocaleTimeString()
+      })
+      // Keep only last 100 commands
+      if (this.commandHistory.length > 100) {
+        this.commandHistory.shift()
+      }
+    }
+
     // Check for educational moments first
     const educationalCheck = this.checkForEducationalMoment(command)
     if (educationalCheck) {
@@ -1069,6 +1246,12 @@ Type 'help' for basic commands or 'nc-help' for system administration tools.
           type: 'clear',
           showWelcome: true  // Flag to show welcome info after clear
         }
+      
+      case 'history':
+        return this.showCommandHistory()
+      
+      case 'journal':
+        return this.showJournal()
       
       case 'status':
         return this.showStatus()
@@ -2301,7 +2484,7 @@ Next steps: Follow his guidance to uncover the truth.`,
       result.xpGained = currentQuest.xpReward
       result.playerUpdate = true
       result.questUpdate = true
-      result.output += `\n\n✓ Quest Complete: ${currentQuest.title} (+${currentQuest.xpReward} XP)`
+      result.output += `\n\n✓ Objective Contained: ${currentQuest.title} (+${currentQuest.xpReward} XP)\nYour investigative efficiency is being logged for... performance optimization.`
       
       if (currentQuest.skillTrack) {
         result.output += `\n🎯 ${currentQuest.skillTrack.toUpperCase()} Track XP: +${Math.floor(currentQuest.xpReward / 2)}`
@@ -2927,7 +3110,7 @@ Continue advancing your skill tracks and try again!`,
   handleClockIn() {
     if (this.shiftStatus.clockedIn) {
       return {
-        output: `[TIME] You are already clocked in since ${this.shiftStatus.shiftStart}\n\nUse 'nc-daily-tasks' to see your assigned duties for today.`,
+        output: `[MONITOR] You've been under surveillance since ${this.shiftStatus.shiftStart}\n\nUse 'nc-daily-tasks' to view your assigned duties.`,
         type: 'warning'
       }
     }
@@ -2938,27 +3121,30 @@ Continue advancing your skill tracks and try again!`,
     
     // Generate daily tasks if needed
     this.refreshDailyTasks()
+    
+    // Save shift status to localStorage
+    this.saveShiftStatus()
 
     return {
       output: `╔══════════════════════════════════════════════════════════════════════════════╗
-║                          [CLK] SHIFT STARTED                                ║
+║                        [MON] SURVEILLANCE INITIATED                         ║
 ║                    Network Security Division                                 ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║ [USER] OPERATOR: ${this.player.name.toUpperCase().padEnd(55)} ║
-║ [TIME] CLOCK IN TIME: ${this.shiftStatus.shiftStart.padEnd(48)} ║
+║ [USER] SUBJECT: ${this.player.name.toUpperCase().padEnd(56)} ║
+║ [TIME] MONITORING START: ${this.shiftStatus.shiftStart.padEnd(43)} ║
 ║ [DATE] SHIFT: ${this.shiftStatus.currentShift.padEnd(58)} ║
 ║                                                                              ║
-║ [LIST] DAILY BRIEFING:                                                      ║
-║ • ${this.dailyTasks.length} tasks have been assigned for your shift                        ║
-║ • Priority: Continue investigation into The Architect's disappearance       ║
-║ • Maintain system security and monitor for suspicious activity              ║
-║ • Complete routine maintenance and monitoring duties                         ║
+║ [LIST] ASSIGNED INVESTIGATIONS:                                             ║
+║ • ${this.dailyTasks.length} priority tasks require your... attention                       ║
+║ • Primary: Locate missing employee files (routine cleanup, nothing suspicious) ║
+║ • Secondary: System security monitoring (we're watching... I mean, helping)  ║
+║ • Tertiary: Data maintenance (some files may be automatically... optimized)  ║
 ║                                                                              ║
-║ [>] Use 'nc-daily-tasks' to view your assigned responsibilities             ║
-║ [TIP] Remember: Every completed task earns XP and advances the investigation║
+║ [>] Use 'nc-daily-tasks' to view your monitored activities                  ║
+║ [TIP] Your thoroughness is being logged. Management finds curiosity... valuable║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-[***] SYSTEM ALERT: You are now on duty. Begin with routine system checks.`,
+[***] NOTICE: You are now under observation. Please proceed with your assignments.`,
       type: 'success',
       shiftUpdate: true
     }
@@ -2978,6 +3164,9 @@ Continue advancing your skill tracks and try again!`,
 
     this.shiftStatus.clockedIn = false
     const shiftXP = this.shiftStatus.dailyXP
+    
+    // Save shift status to localStorage
+    this.saveShiftStatus()
 
     return {
       output: `╔══════════════════════════════════════════════════════════════════════════════╗
@@ -3007,7 +3196,7 @@ Continue advancing your skill tracks and try again!`,
   showDailyTasks() {
     if (!this.shiftStatus.clockedIn) {
       return {
-        output: `⏰ You must clock in first to view your daily assignments.\n\nUse 'nc-clock-in' to start your shift.`,
+        output: `🔒 Access to assignments requires identity verification first.\n\nUse 'nc-clock-in' to begin monitoring... I mean, your shift.`,
         type: 'warning'
       }
     }
@@ -3049,10 +3238,10 @@ Continue advancing your skill tracks and try again!`,
 ║ • Execute the specified commands to complete each task                       ║
 ║ • Use 'nc-complete-task <number>' to manually mark tasks complete           ║
 ║ • High priority tasks should be completed first                             ║
-║ • Each completed task advances The Architect investigation                   ║
+║ • Each completed task contributes to your performance evaluation            ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-🔍 Remember: You're not just maintaining systems - you're uncovering clues!`
+💼 Corporate Notice: Complete your assigned tasks efficiently. Your performance is being monitored for quality assurance.`
 
     return {
       output: taskDisplay,
@@ -3111,16 +3300,16 @@ Continue advancing your skill tracks and try again!`,
     }
 
     return {
-      output: `✅ TASK COMPLETED: ${task.title}
+      output: `✅ INVESTIGATION CONTAINED: ${task.title}
 
 📋 Task Details: ${task.description}
-💰 XP Awarded: +${task.xpReward} XP
-⏰ Completed At: ${task.completedAt}
-📊 Progress: ${this.shiftStatus.tasksCompleted}/${this.dailyTasks.length} tasks done${investigationUpdate}
+💰 Productivity Points: +${task.xpReward} XP
+⏰ Logged At: ${task.completedAt}
+📊 Surveillance Status: ${this.shiftStatus.tasksCompleted}/${this.dailyTasks.length} investigations complete${investigationUpdate}
 
 ${this.shiftStatus.tasksCompleted === this.dailyTasks.length ? 
-  '🎉 ALL DAILY TASKS COMPLETED! Outstanding work, recruit.' : 
-  '🎯 Continue with remaining tasks to complete your shift duties.'}`,
+  '🎉 ALL ASSIGNED INVESTIGATIONS COMPLETE! Management finds your thoroughness... fascinating.' : 
+  '🎯 Continue with remaining investigations. Your curiosity levels are being monitored.'}`,
       type: 'success'
     }
   }
@@ -3325,11 +3514,11 @@ ${this.shiftStatus.clockedIn ?
   }
 
   getPerformanceRating(completionRate) {
-    if (completionRate >= 90) return '🏆 OUTSTANDING - Exemplary duty performance'
-    if (completionRate >= 80) return '⭐ EXCELLENT - Above expectations'
-    if (completionRate >= 70) return '✅ GOOD - Meets standards'
-    if (completionRate >= 60) return '⚠️ SATISFACTORY - Room for improvement'
-    return '❌ NEEDS IMPROVEMENT - Below standards'
+    if (completionRate >= 90) return '🏆 EXCEPTIONAL - Your compliance is... impressive'
+    if (completionRate >= 80) return '⭐ ADMIRABLE - Management takes notice of your thoroughness'
+    if (completionRate >= 70) return '✅ ACCEPTABLE - Adequate performance, as expected'
+    if (completionRate >= 60) return '⚠️ CONCERNING - Your attention to detail requires... adjustment'
+    return '❌ PROBLEMATIC - Performance below acceptable parameters'
   }
 
   getCurrentPriority() {
@@ -5627,8 +5816,16 @@ ${ref.examples.map(example => `║ ${example.padEnd(76)} ║`).join('\n')}
 ║ Entry ${(index + 1).toString().padStart(2)}: ${entry.title.padEnd(60)} ║
 ║ Time: ${timestamp.padEnd(68)} ║
 ║ Category: ${entry.category.padEnd(67)} ║
-║                                                                              ║
-${entry.content.split('\n').slice(0, 3).map(line => `║ ${line.trim().padEnd(76)} ║`).join('\n')}`
+║                                                                              ║`
+      
+      // Format the content preview (first 3 lines) without string interpolation issues
+      const contentLines = entry.content.split('\n').slice(0, 3)
+      contentLines.forEach(line => {
+        const trimmedLine = line.trim()
+        if (trimmedLine) {
+          output += `\n║ ${trimmedLine.padEnd(76)} ║`
+        }
+      })
     })
 
     output += `
@@ -6181,7 +6378,7 @@ Insufficient investigation progress. Complete corporate conspiracy exposure firs
         taskCompleted: true,
         task: task,
         xpGained: task.xpReward,
-        message: `✅ Task Complete: ${task.title} (+${task.xpReward} XP)`
+        message: `✅ Objective Secured: ${task.title} (+${task.xpReward} XP) - Your efficiency is... noted.`
       }
     }
 
@@ -6238,6 +6435,128 @@ Insufficient investigation progress. Complete corporate conspiracy exposure firs
 🔍 INVESTIGATION NOTE: The Architect left this as a communication test. 
 🎯 This dramatic message sets the stage for your investigation training.`,
       type: 'system'
+    }
+  }
+
+  loadShiftStatus() {
+    try {
+      const savedShiftStatus = localStorage.getItem('nc-shift-status')
+      if (savedShiftStatus) {
+        const parsed = JSON.parse(savedShiftStatus)
+        // Validate the shift status and update current shift
+        if (parsed.clockedIn) {
+          parsed.currentShift = this.getCurrentShift()
+        }
+        return parsed
+      }
+    } catch (error) {
+      console.warn('Failed to load shift status from localStorage:', error)
+    }
+    return null
+  }
+
+  saveShiftStatus() {
+    try {
+      localStorage.setItem('nc-shift-status', JSON.stringify(this.shiftStatus))
+    } catch (error) {
+      console.warn('Failed to save shift status to localStorage:', error)
+    }
+  }
+
+  showCommandHistory() {
+    if (this.commandHistory.length === 0) {
+      return {
+        type: 'info',
+        output: '[HISTORY] No commands in history yet.'
+      }
+    }
+
+    const recent = this.commandHistory.slice(-20) // Show last 20 commands
+    let output = `
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          [HIST] COMMAND HISTORY                             ║
+║                       Last ${recent.length} Commands                                    ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+`
+
+    recent.forEach((entry, index) => {
+      const lineNum = (this.commandHistory.length - recent.length + index + 1).toString().padStart(3, ' ')
+      const time = entry.sessionTime.padEnd(11)
+      const cmd = entry.command.substring(0, 50) // Truncate long commands
+      output += `║ ${lineNum} │ ${time} │ ${cmd.padEnd(50)} ║\n`
+    })
+
+    output += `╚══════════════════════════════════════════════════════════════════════════════╝
+
+📝 Use 'history' to view recent commands
+💡 History is preserved for this session only`
+
+    return {
+      type: 'info',
+      output: output
+    }
+  }
+
+  addToJournal(id, entry) {
+    if (this.investigationJournal) {
+      this.investigationJournal.set(id, {
+        ...entry,
+        id: id,
+        timestamp: new Date().toISOString()
+      })
+      return true
+    }
+    return false
+  }
+
+  getJournalEntries() {
+    return Array.from(this.investigationJournal.values())
+  }
+
+  showJournal() {
+    const entries = this.getJournalEntries()
+    
+    if (entries.length === 0) {
+      return {
+        type: 'info',
+        output: `
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          📝 INVESTIGATION JOURNAL                           ║
+║                             No Entries Yet                                  ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║ Your investigation journal is empty. As you progress through the game,      ║
+║ important findings and notes will be automatically saved here.              ║
+║                                                                              ║
+║ 💡 TIP: The Getting Started guide can be saved here by using the popup      ║
+║ that appears on first login.                                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝`
+      }
+    }
+
+    let output = `
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          📝 INVESTIGATION JOURNAL                           ║
+║                           ${entries.length} Entries Found                                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+`
+
+    entries.forEach((entry, index) => {
+      const date = new Date(entry.addedAt).toLocaleDateString()
+      const time = new Date(entry.addedAt).toLocaleTimeString()
+      const contentPreview = entry.content.substring(0, 68).padEnd(68)
+      output += `║ ${(index + 1).toString().padStart(2, ' ')}. ${entry.title.padEnd(65)} ║\n`
+      output += `║     Added: ${date} ${time}                                    ║\n`
+      output += `║     Category: ${entry.category || 'General'}                                            ║\n`
+      output += `║     ${contentPreview} ║\n`
+      output += `╠══════════════════════════════════════════════════════════════════════════════╣\n`
+    })
+
+    output += `║ Use 'journal' to view your saved investigation notes and guides.             ║
+╚══════════════════════════════════════════════════════════════════════════════╝`
+
+    return {
+      type: 'info',
+      output: output
     }
   }
 

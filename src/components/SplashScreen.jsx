@@ -69,7 +69,7 @@ function SplashScreen({ onStart }) {
   if (!showFullBriefing) {
     return (
       <div className="splash-screen">
-        <div className="splash-title">NETWORK CHRONICLES V5</div>
+        <div className="splash-title">NETWORK CHRONICLES 2.0</div>
         <div className="splash-subtitle">Linux Learning Terminal</div>
         <div className="loading-indicator">
           <div className="dots">
