@@ -132,3 +132,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Inspired by the countless system administrators who maintain our digital infrastructure
 - Thanks to all contributors and testers who have helped shape this project
+
+
+<a href="https://www.buymeacoffee.com/caseytunturi" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me A Coffee" height="60px" width="200px"></a>
